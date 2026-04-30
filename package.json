@@ -1,0 +1,24 @@
+{
+  "name": "vice-delice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "encore dev",
+    "watch": "encore dev --watch",
+    "build": "encore production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@symfony/webpack-encore": "^6.0.0",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2"
+  }
+}
