@@ -28,7 +28,7 @@ class Category
     #[ORM\Column(length: 150)]
     private string $name;
 
-    #[ORM\Column(length: 100, unique: true)]
+    #[ORM\Column(length: 191, unique: true)]
     private string $slug;
 
     #[ORM\Column(type: 'text', nullable: true)]
