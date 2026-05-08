@@ -19,27 +19,21 @@ class Product
     #[ORM\Column]
     private ?int $id = null;
 
-    // =========================
-    // IDENTITÉ MÉTIER IMPORT
-    // =========================
-
     #[ORM\Column(length: 255)]
     private string $name;
 
-    #[ORM\Column(length: 100, unique: true)]
+    #[ORM\Column(length: 191, unique: true)]
     private string $slug;
 
-    #[ORM\Column(length: 100, unique: true, nullable: true)]
-    private ?string $supplierReference = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoSlug = null;
 
-    // =========================
-    // CONTENU
-    // =========================
+    #[ORM\Column(length: 191, unique: true, nullable: true)]
+    private ?string $supplierReference = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    // ⚠ mieux que string pour import
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
     private ?string $price = null;
 
@@ -48,10 +42,6 @@ class Product
 
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
-
-    // =========================
-    // RELATIONS
-    // =========================
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -67,7 +57,7 @@ class Product
     #[ORM\OneToMany(
         targetEntity: ProductImage::class,
         mappedBy: 'product',
-        cascade: ['persist'],
+        cascade: ['persist', 'remove'],
         orphanRemoval: true
     )]
     private Collection $productImages;
@@ -83,10 +73,6 @@ class Product
     )]
     private Collection $productVariants;
 
-    // =========================
-    // DATES
-    // =========================
-
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -97,15 +83,82 @@ class Product
     {
         $this->productImages = new ArrayCollection();
         $this->productVariants = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
         $this->isActive = true;
+    }
+
+    // =========================
+    // LIFECYCLE CALLBACKS
+    // =========================
+
+    #[ORM\PrePersist]
+    public function setTimestampsOnCreate(): void
+    {
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
     }
 
     #[ORM\PreUpdate]
     public function updateTimestamp(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    // =========================
+    // IMAGE PRINCIPALE
+    // =========================
+
+    public function getMainImage(): ?ProductImage
+    {
+        foreach ($this->productImages as $image) {
+            if ($image->isMain()) {
+                return $image;
+            }
+        }
+
+        $first = $this->productImages->first();
+
+        return $first instanceof ProductImage ? $first : null;
+    }
+
+    public function getMainImageUrl(): ?string
+    {
+        return $this->getMainImage()?->getUrl();
+    }
+
+    public function hasImages(): bool
+    {
+        return !$this->productImages->isEmpty();
+    }
+
+    // =========================
+    // IMAGES
+    // =========================
+
+    public function getProductImages(): Collection
+    {
+        return $this->productImages;
+    }
+
+    public function addProductImage(ProductImage $image): static
+    {
+        if (!$this->productImages->contains($image)) {
+            $this->productImages->add($image);
+            $image->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductImage(ProductImage $image): static
+    {
+        if ($this->productImages->removeElement($image)) {
+            if ($image->getProduct() === $this) {
+                $image->setProduct(null);
+            }
+        }
+
+        return $this;
     }
 
     // =========================
@@ -141,7 +194,11 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?string { return $this->price; }
+    // 👉 amélioration ici
+    public function getPrice(): ?float
+    {
+        return $this->price !== null ? (float) $this->price : null;
+    }
 
     public function setPrice(?string $price): static
     {
@@ -181,16 +238,6 @@ class Product
         return $this;
     }
 
-    public function getProductImages(): Collection
-    {
-        return $this->productImages;
-    }
-
-    public function getProductVariants(): Collection
-    {
-        return $this->productVariants;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -199,6 +246,17 @@ class Product
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+        return $this;
+    }
+
+    public function getSeoSlug(): ?string
+    {
+        return $this->seoSlug;
+    }
+
+    public function setSeoSlug(?string $seoSlug): static
+    {
+        $this->seoSlug = $seoSlug;
         return $this;
     }
 }
