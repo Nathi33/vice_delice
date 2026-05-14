@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation commande{% endblock %}
+
+{% block body %}
+
+<h1>Validation de commande</h1>
+
+{% for message in app.flashes('error') %}
+    <div style="color:red;margin-bottom:10px;">
+        {{ message }}
+    </div>
+{% endfor %}
+
+<form method="POST" action="{{ path('checkout_validate') }}">
+
+    <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
+
+    <div>
+        <label>Prénom</label><br>
+        <input type="text" name="firstName" required>
+    </div>
+
+    <div>
+        <label>Nom</label><br>
+        <input type="text" name="lastName" required>
+    </div>
+
+    <div>
+        <label>Email</label><br>
+        <input type="email" name="email" required>
+    </div>
+
+    <div>
+        <label>Adresse</label><br>
+        <input type="text" name="address" required>
+    </div>
+
+    <div>
+        <label>Code postal</label><br>
+        <input type="text" name="postalCode" required>
+    </div>
+
+    <div>
+        <label>Ville</label><br>
+        <input type="text" name="city" required>
+    </div>
+
+    <hr>
+
+    <div>
+        <label>
+            <input type="checkbox" name="adult" value="1" required>
+            Je certifie avoir plus de 18 ans
+        </label>
+    </div>
+
+    <br>
+
+    <button type="submit">
+        Confirmer la commande
+    </button>
+
+</form>
+
+{% endblock %}

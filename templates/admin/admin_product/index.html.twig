@@ -1,0 +1,299 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des produits{% endblock %}
+
+{% block body %}
+
+<div style="max-width:1400px;margin:auto;">
+
+    <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:30px;
+    ">
+
+        <h1>
+            Gestion des produits
+        </h1>
+
+        <a href="{{ path('admin_product_new') }}"
+           style="
+                padding:12px 20px;
+                background:#6A1857;
+                color:white;
+                text-decoration:none;
+                border-radius:8px;
+                font-weight:bold;
+           ">
+            + Nouveau produit
+        </a>
+
+    </div>
+
+    {# =========================
+       RECHERCHE
+       ========================= #}
+
+    <form method="GET" style="
+        margin-bottom:25px;
+        display:flex;
+        gap:10px;
+        align-items:center;
+        flex-wrap:wrap;
+    ">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Rechercher..."
+            style="padding:10px;width:250px;"
+        >
+
+        {# =========================
+        STATUS
+        ========================= #}
+
+        <select name="status">
+
+            <option value="">
+                Tous statuts
+            </option>
+
+            <option value="active"
+                {% if status == 'active' %}selected{% endif %}
+            >
+                Actifs
+            </option>
+
+            <option value="inactive"
+                {% if status == 'inactive' %}selected{% endif %}
+            >
+                Inactifs
+            </option>
+
+        </select>
+
+        {# =========================
+        CATÉGORIES
+        ========================= #}
+
+        <select name="category">
+
+            <option value="">
+                Toutes catégories
+            </option>
+
+            {% for cat in categories %}
+
+                <option
+                    value="{{ cat.id }}"
+                    {% if category == cat.id %}selected{% endif %}
+                >
+                    {{ cat.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        {# =========================
+        STOCK
+        ========================= #}
+
+        <select name="stock">
+
+            <option value="">
+                Tous stocks
+            </option>
+
+            <option value="low"
+                {% if stock == 'low' %}selected{% endif %}
+            >
+                Stock faible
+            </option>
+
+            <option value="out"
+                {% if stock == 'out' %}selected{% endif %}
+            >
+                Rupture
+            </option>
+
+        </select>
+
+        {# =========================
+        IMAGES
+        ========================= #}
+
+        <select name="image">
+
+            <option value="">
+                Toutes images
+            </option>
+
+            <option value="missing"
+                {% if image == 'missing' %}selected{% endif %}
+            >
+                Sans image
+            </option>
+
+        </select>
+
+        <button type="submit">
+            Filtrer
+        </button>
+
+        <a href="{{ path('admin_product_index') }}">
+            Reset
+        </a>
+
+    </form>
+
+    {# =========================
+       TABLEAU PRODUITS
+       ========================= #}
+
+    <div style="
+        background:white;
+        border:1px solid #ddd;
+        border-radius:10px;
+        overflow:hidden;
+    ">
+
+        <table width="100%" cellpadding="12">
+
+            <thead style="background:#f5f5f5;">
+
+                <tr>
+                    <th align="left">ID</th>
+                    <th align="left">Image</th>
+                    <th align="left">Produit</th>
+                    <th align="left">Référence</th>
+                    <th align="left">Prix</th>
+                    <th align="left">Stock</th>
+                    <th align="left">Statut</th>
+                    <th align="left">Créé le</th>
+                    <th align="left">Actions</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for product in products %}
+
+                <tr style="border-bottom:1px solid #eee;">
+
+                    <td>
+                        #{{ product.id }}
+                    </td>
+
+                    <td>
+
+                        {% if product.mainImageUrl %}
+                            <img
+                                src="{{ product.mainImageUrl }}"
+                                alt="{{ product.name }}"
+                                width="60"
+                                style="border-radius:6px;"
+                            >
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        <strong>{{ product.name }}</strong>
+                        <br>
+                        <small style="color:#777;">
+                            {{ product.slug }}
+                        </small>
+                    </td>
+
+                    <td>
+                        {{ product.supplierReference ?: '—' }}
+                    </td>
+
+                    <td>
+                        {{ product.price|number_format(2, ',', ' ') }} €
+                    </td>
+
+                    <td>
+
+                        {% if product.stock is null %}
+                            —
+                        {% elseif product.stock <= 0 %}
+                            <span style="color:red;font-weight:bold;">
+                                Rupture
+                            </span>
+                        {% elseif product.stock <= 5 %}
+                            <span style="color:orange;font-weight:bold;">
+                                {{ product.stock }}
+                            </span>
+                        {% else %}
+                            {{ product.stock }}
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if product.isActive %}
+                            <span style="color:green;font-weight:bold;">
+                                Actif
+                            </span>
+                        {% else %}
+                            <span style="color:red;font-weight:bold;">
+                                Inactif
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ product.createdAt ? product.createdAt|date('d/m/Y H:i') : '—' }}
+                    </td>
+
+                    <td style="display:flex;gap:10px;">
+
+                        <a href="{{ path('admin_product_show', {'id': product.id}) }}">
+                            Voir
+                        </a>
+
+                        <a href="{{ path('admin_product_edit', {'id': product.id}) }}">
+                            Modifier
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+                    <td colspan="9" style="padding:30px;text-align:center;">
+                        Aucun produit trouvé
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {# =========================
+       PAGINATION
+       ========================= #}
+
+    <div style="margin-top:30px;">
+        {{ knp_pagination_render(products) }}
+    </div>
+
+</div>
+
+{% endblock %}

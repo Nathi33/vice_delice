@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catégories{% endblock %}
+
+{% block body %}
+
+<h1>Gestion des catégories</h1>
+
+<table class="table">
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Référence externe</th>
+            <th>Nom</th>
+            <th>Slug</th>
+            <th>Description</th>
+            <th>Image</th>
+            <th>Statut</th>
+            <th>Date de création</th>
+            <th>Dernière modification</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for category in categories %}
+
+            <tr>
+                <td>{{ category.id }}</td>
+                <td>{{ category.externalReference }}</td>
+                <td>{{ category.name }}</td>
+                <td>{{ category.slug }}</td>
+                <td>
+                    {{ category.description ? category.description : '-' }}
+                </td>
+                <td>
+                    {% if category.image %}
+                        <img src="{{ category.image }}" alt="{{ category.name }}" width="50">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if category.isActive %}
+                        Actif
+                    {% else %}
+                        Inactif
+                    {% endif %}
+                </td>
+                <td>
+                    {{ category.createdAt ? category.createdAt|date('d/m/Y H:i') : '' }}
+                </td>
+                <td>
+                    {{ category.updatedAt ? category.updatedAt|date('d/m/Y H:i') : '' }}
+                </td>
+                <td>
+                    <a href="{{ path('admin_category_show', {'id': category.id}) }}">
+                        Voir
+                    </a>
+                    |
+                    <a href="{{ path('admin_category_edit', {'id': category.id}) }}">
+                        Modifier
+                    </a>
+                </td>
+            </tr>
+
+        {% else %}
+
+            <tr>
+                <td colspan="10">
+                    Aucune catégorie trouvée
+                </td>
+            </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<a href="{{ path('admin_category_new') }}">
+    Créer une catégorie
+</a>
+
+{% endblock %}

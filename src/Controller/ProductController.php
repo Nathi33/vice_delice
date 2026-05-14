@@ -12,14 +12,20 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ProductController extends AbstractController
 {
+    // =========================
+    // PAGE CATALOGUE
+    // =========================
     #[Route('/products', name: 'product_index')]
     public function index(CategoryRepository $categoryRepository): Response
     {
         return $this->render('product/index.html.twig', [
-            'categories' => $categoryRepository->findAll(),
+            'categories' => $categoryRepository->findBy([], ['name' => 'ASC']),
         ]);
     }
 
+    // =========================
+    // AJAX PRODUITS (CATALOGUE)
+    // =========================
     #[Route('/products/ajax', name: 'product_ajax')]
     public function ajax(
         Request $request,
@@ -27,13 +33,16 @@ class ProductController extends AbstractController
     ): JsonResponse {
 
         $limit = 24;
-        $page = max(1, (int) $request->query->get('page', 1));
+        $page = max(1, $request->query->getInt('page', 1));
         $offset = ($page - 1) * $limit;
 
-        $category = $request->query->get('category');
+        $category = $request->query->get('category'); // slug
         $sort = $request->query->get('sort', 'newest');
-        $search = $request->query->get('search');
+        $search = trim((string) $request->query->get('search', ''));
 
+        // =========================
+        // PRODUITS
+        // =========================
         $products = $productRepository->findFilteredProducts(
             $limit,
             $offset,
@@ -42,13 +51,19 @@ class ProductController extends AbstractController
             $sort
         );
 
-        $total = $productRepository->countFiltered($category, $search);
+        // ⚠️ IMPORTANT : même logique de filtre que findFilteredProducts
+        $total = $productRepository->countFiltered(
+            $category,
+            $search
+        );
+
         $totalPages = (int) ceil($total / $limit);
 
         $data = [];
 
         foreach ($products as $product) {
             $data[] = [
+                'id' => $product->getId(),
                 'name' => $product->getName(),
                 'price' => $product->getPrice(),
                 'slug' => $product->getSlug(),
@@ -56,15 +71,39 @@ class ProductController extends AbstractController
             ];
         }
 
-        $response = new JsonResponse([
+        return new JsonResponse([
             'products' => $data,
             'currentPage' => $page,
             'totalPages' => $totalPages,
         ]);
+    }
 
-        $response->setPublic();
-        $response->setMaxAge(30);
+    // =========================
+    // FICHE PRODUIT
+    // =========================
+    #[Route('/product/{slug}', name: 'product_show')]
+    public function show(
+        string $slug,
+        ProductRepository $productRepository
+    ): Response {
 
-        return $response;
+        $product = $productRepository->createQueryBuilder('p')
+            ->leftJoin('p.productImages', 'pi')
+            ->addSelect('pi')
+            ->leftJoin('p.category', 'c')
+            ->addSelect('c')
+            ->where('p.slug = :slug')
+            ->andWhere('p.isActive = 1')
+            ->setParameter('slug', $slug)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$product) {
+            throw $this->createNotFoundException('Produit introuvable');
+        }
+
+        return $this->render('product/show.html.twig', [
+            'product' => $product,
+        ]);
     }
 }

@@ -47,6 +47,9 @@
             "./migrations/.gitignore"
         ]
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.10.0"
+    },
     "phpunit/phpunit": {
         "version": "13.1",
         "recipe": {
@@ -60,6 +63,18 @@
             "./phpunit.dist.xml",
             "./tests/bootstrap.php",
             "./bin/phpunit"
+        ]
+    },
+    "stripe/stripe-php": {
+        "version": "20.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "19.0",
+            "ref": "d6829c693e3927a8972c7671d74a1a5c505712b0"
+        },
+        "files": [
+            "./config/packages/stripe.yaml"
         ]
     },
     "symfony/asset-mapper": {
@@ -346,6 +361,9 @@
             "./package.json",
             "./webpack.config.js"
         ]
+    },
+    "symfonycasts/verify-email-bundle": {
+        "version": "v1.18.0"
     },
     "twig/extra-bundle": {
         "version": "v3.24.0"

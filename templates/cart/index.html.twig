@@ -1,20 +1,143 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CartController!{% endblock %}
+{% block title %}Mon panier{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+<div style="max-width:1200px;margin:auto;">
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/natha/vice-delice/src/Controller/CartController.php</code></li>
-        <li>Your template at <code>C:/Users/natha/vice-delice/templates/cart/index.html.twig</code></li>
-    </ul>
+    <h1 style="margin-bottom:30px;">Mon panier</h1>
+
+    {% if cart.items is empty %}
+
+        <div style="padding:40px;border:1px solid #ddd;border-radius:8px;text-align:center;">
+            <h2>Votre panier est vide</h2>
+
+            <p style="color:#666;margin:20px 0;">
+                Découvrez nos produits et ajoutez vos favoris.
+            </p>
+
+            <a href="{{ path('product_index') }}"
+               style="display:inline-block;padding:12px 20px;background:#15848F;color:white;text-decoration:none;border-radius:6px;">
+                Voir les produits
+            </a>
+        </div>
+
+    {% else %}
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:30px;align-items:start;">
+
+            {# ========================= LISTE ========================= #}
+            <div style="display:flex;flex-direction:column;gap:20px;">
+
+                {% for item in cart.items %}
+
+                    <div style="display:flex;gap:20px;border:1px solid #ddd;padding:15px;border-radius:8px;align-items:center;">
+
+                        <div>
+                            {% if item.product.mainImageUrl %}
+                                <img src="{{ item.product.mainImageUrl }}"
+                                     style="width:120px;height:120px;object-fit:cover;border-radius:6px;">
+                            {% else %}
+                                <div style="width:120px;height:120px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                    Pas d'image
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div style="flex:1;">
+                            <h3>{{ item.product.name }}</h3>
+
+                            {% if item.product.price %}
+                                <p style="font-size:20px;font-weight:bold;color:#15848F;">
+                                    {{ item.product.price }} €
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <button onclick="decreaseCart({{ item.product.id }})">-</button>
+                            <strong>{{ item.qty }}</strong>
+                            <button onclick="addToCart({{ item.product.id }})">+</button>
+                        </div>
+
+                        <div style="min-width:120px;text-align:right;">
+                            <p style="font-weight:bold;">
+                                {{ item.subtotal|number_format(2, '.', ' ') }} €
+                            </p>
+
+                            <button onclick="removeFromCart({{ item.product.id }})">
+                                Supprimer
+                            </button>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            {# ========================= RESUME ========================= #}
+            <div style="border:1px solid #ddd;padding:20px;border-radius:8px;position:sticky;top:20px;">
+
+                <h2>Résumé</h2>
+
+                <div style="margin:20px 0;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span>Total</span>
+                        <strong>{{ cart.total|number_format(2, '.', ' ') }} €</strong>
+                    </div>
+                </div>
+
+                <hr>
+
+                {# ========================= BOUTON CHECKOUT ========================= #}
+
+                {% if app.user %}
+
+                    <a href="{{ path('checkout_index') }}"
+                       style="display:block;text-align:center;padding:14px;background:#6A1857;color:white;text-decoration:none;border-radius:6px;font-weight:bold;">
+                        Commander
+                    </a>
+
+                {% else %}
+
+                    <a href="{{ path('app_login') }}"
+                       style="display:block;text-align:center;padding:14px;background:#6A1857;color:white;text-decoration:none;border-radius:6px;font-weight:bold;">
+                        Se connecter pour commander
+                    </a>
+
+                {% endif %}
+
+                <button onclick="clearCart()"
+                        style="width:100%;margin-top:10px;padding:12px;border:none;background:#ddd;border-radius:6px;">
+                    Vider le panier
+                </button>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
 </div>
+
+{# ========================= JS ========================= #}
+
+<script>
+
+async function decreaseCart(productId) {
+    window.location.href = `/cart/decrease/${productId}`;
+}
+
+async function removeFromCart(productId) {
+    window.location.href = `/cart/remove/${productId}`;
+}
+
+async function clearCart() {
+    window.location.href = `/cart/clear`;
+}
+
+</script>
+
 {% endblock %}

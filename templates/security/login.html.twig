@@ -1,34 +1,78 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Connexion{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
+<div style="max-width:500px;margin:60px auto;padding:30px;border:1px solid #ddd;border-radius:10px;">
+
+    <h1 style="margin-bottom:20px;">Connexion</h1>
+
+    {% if error %}
+        <div style="background:#e74c3c;color:white;padding:10px;border-radius:6px;margin-bottom:15px;">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
         </div>
     {% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+    {% if app.user %}
+        <div style="margin-bottom:15px;">
+            Vous êtes connecté en tant que {{ app.user.userIdentifier }}.
+            <a href="{{ path('app_logout') }}">Se déconnecter</a>
+        </div>
+    {% endif %}
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
+    <form method="post">
+
+        <label>Email</label>
+        <input type="email"
+               name="email"
+               value="{{ last_username }}"
+               required
+               style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid #ccc;border-radius:6px;">
+
+        <label>Mot de passe</label>
+        <input type="password"
+               name="password"
+               required
+               style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid #ccc;border-radius:6px;">
+
+        <input type="hidden"
+               name="_csrf_token"
+               value="{{ csrf_token('authenticate') }}">
+
+        <div style="margin-bottom:15px;">
+            <label>
+                <input type="checkbox" name="_remember_me">
+                Se souvenir de moi
+            </label>
+        </div>
+
+        <button type="submit"
+                style="width:100%;padding:12px;background:#6A1857;color:white;border:none;border-radius:6px;font-weight:bold;">
+            Se connecter
+        </button>
+
+    </form>
+
+    <hr style="margin:25px 0;">
+
+    <div style="text-align:center;">
+
+        <p>Pas encore de compte ?</p>
+
+        <a href="{{ path('app_register') }}"
+           style="display:inline-block;margin-top:10px;padding:10px 15px;background:#15848F;color:white;border-radius:6px;text-decoration:none;">
+            Créer un compte
+        </a>
+
+        {% if app.request.session.get('_security.main.target_path') %}
+            <p style="margin-top:10px;font-size:12px;color:#666;">
+                Vous serez redirigé après connexion
+            </p>
+        {% endif %}
+
     </div>
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+</div>
+
 {% endblock %}

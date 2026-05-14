@@ -13,6 +13,9 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    // =========================
+    // LISTE PRODUITS FILTRÉS
+    // =========================
     public function findFilteredProducts(
         int $limit,
         int $offset,
@@ -20,6 +23,7 @@ class ProductRepository extends ServiceEntityRepository
         ?string $search,
         string $sort
     ): array {
+
         $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.productImages', 'pi')
             ->addSelect('pi')
@@ -27,43 +31,75 @@ class ProductRepository extends ServiceEntityRepository
             ->addSelect('c')
             ->where('p.isActive = 1');
 
-        if ($categorySlug) {
+        // =========================
+        // CATÉGORIE (slug)
+        // =========================
+        if (!empty($categorySlug)) {
             $qb->andWhere('c.slug = :category')
                ->setParameter('category', $categorySlug);
         }
 
-        if ($search) {
-            $qb->andWhere('p.name LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
+        // =========================
+        // SEARCH (AMÉLIORÉ)
+        // =========================
+        if (!empty($search)) {
+            $qb->andWhere('
+                p.name LIKE :search
+                OR p.slug LIKE :search
+                OR p.supplierReference LIKE :search
+            ')
+            ->setParameter('search', '%' . $search . '%');
         }
 
-        match ($sort) {
-            'price_asc' => $qb->orderBy('p.price', 'ASC'),
-            'price_desc' => $qb->orderBy('p.price', 'DESC'),
-            default => $qb->orderBy('p.id', 'DESC'),
-        };
+        // =========================
+        // SORT SÉCURISÉ
+        // =========================
+        switch ($sort) {
+            case 'price_asc':
+                $qb->orderBy('p.price', 'ASC');
+                break;
 
-        return $qb->setFirstResult($offset)
-                  ->setMaxResults($limit)
-                  ->getQuery()
-                  ->getResult();
+            case 'price_desc':
+                $qb->orderBy('p.price', 'DESC');
+                break;
+
+            default:
+                $qb->orderBy('p.id', 'DESC');
+                break;
+        }
+
+        return $qb
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 
-    public function countFiltered(?string $categorySlug, ?string $search): int
-    {
+    // =========================
+    // COUNT (IMPORTANT POUR PAGINATION)
+    // =========================
+    public function countFiltered(
+        ?string $categorySlug,
+        ?string $search
+    ): int {
+
         $qb = $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
+            ->select('COUNT(DISTINCT p.id)')
             ->leftJoin('p.category', 'c')
             ->where('p.isActive = 1');
 
-        if ($categorySlug) {
+        if (!empty($categorySlug)) {
             $qb->andWhere('c.slug = :category')
                ->setParameter('category', $categorySlug);
         }
 
-        if ($search) {
-            $qb->andWhere('p.name LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
+        if (!empty($search)) {
+            $qb->andWhere('
+                p.name LIKE :search
+                OR p.slug LIKE :search
+                OR p.supplierReference LIKE :search
+            ')
+            ->setParameter('search', '%' . $search . '%');
         }
 
         return (int) $qb->getQuery()->getSingleScalarResult();

@@ -74,7 +74,11 @@ function loadProducts(page = 1) {
 
                         ${p.price ? `<p><strong>${p.price} €</strong></p>` : ''}
 
-                        <a href="/product/${p.slug}">Voir</a>
+                        <a href="/product/${p.slug}">Voir</a> | 
+
+                        <button onclick="addToCart(${p.id})">
+                            Ajouter au panier
+                        </button>
 
                     </div>
                 `;
