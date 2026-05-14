@@ -6,6 +6,7 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -51,9 +52,6 @@ class Product
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Brand $brand = null;
 
-    /**
-     * @var Collection<int, ProductImage>
-     */
     #[ORM\OneToMany(
         targetEntity: ProductImage::class,
         mappedBy: 'product',
@@ -62,9 +60,6 @@ class Product
     )]
     private Collection $productImages;
 
-    /**
-     * @var Collection<int, ProductVariant>
-     */
     #[ORM\OneToMany(
         targetEntity: ProductVariant::class,
         mappedBy: 'product',
@@ -87,25 +82,91 @@ class Product
     }
 
     // =========================
-    // LIFECYCLE CALLBACKS
+    // LIFECYCLE
     // =========================
 
     #[ORM\PrePersist]
-    public function setTimestampsOnCreate(): void
+    public function onCreate(): void
     {
         $now = new \DateTimeImmutable();
+
         $this->createdAt = $now;
         $this->updatedAt = $now;
+
+        if (empty($this->slug) && !empty($this->name)) {
+            $this->generateSlug();
+        }
     }
 
     #[ORM\PreUpdate]
-    public function updateTimestamp(): void
+    public function onUpdate(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+
+        if (empty($this->slug) && !empty($this->name)) {
+            $this->generateSlug();
+        }
     }
 
     // =========================
-    // IMAGE PRINCIPALE
+    // SLUG
+    // =========================
+
+    public function generateSlug(): void
+    {
+        $slugger = new AsciiSlugger();
+
+        $this->slug = strtolower(
+            $slugger->slug($this->name)->toString()
+        );
+    }
+
+    public function ensureSlug(): void
+    {
+        if (!$this->slug && $this->name) {
+            $this->generateSlug();
+        }
+    }
+
+    // =========================
+    // PRICE HELPERS
+    // =========================
+
+    public function getPrice(): ?string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?string $price): static
+    {
+        $this->price = $price !== null
+            ? number_format((float)$price, 2, '.', '')
+            : null;
+
+        return $this;
+    }
+
+    public function getPriceAsFloat(): float
+    {
+        return (float) $this->price;
+    }
+
+    // =========================
+    // TIMESTAMPS
+    // =========================
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    // =========================
+    // MAIN IMAGE
     // =========================
 
     public function getMainImage(): ?ProductImage
@@ -194,19 +255,10 @@ class Product
         return $this;
     }
 
-    // 👉 amélioration ici
-    public function getPrice(): ?float
+    public function getStock(): ?int
     {
-        return $this->price !== null ? (float) $this->price : null;
+        return $this->stock;
     }
-
-    public function setPrice(?string $price): static
-    {
-        $this->price = $price;
-        return $this;
-    }
-
-    public function getStock(): ?int { return $this->stock; }
 
     public function setStock(?int $stock): static
     {
@@ -214,7 +266,10 @@ class Product
         return $this;
     }
 
-    public function isActive(): bool { return $this->isActive; }
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
 
     public function setIsActive(bool $isActive): static
     {
@@ -222,7 +277,10 @@ class Product
         return $this;
     }
 
-    public function getCategory(): ?Category { return $this->category; }
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
 
     public function setCategory(?Category $category): static
     {
@@ -230,7 +288,10 @@ class Product
         return $this;
     }
 
-    public function getBrand(): ?Brand { return $this->brand; }
+    public function getBrand(): ?Brand
+    {
+        return $this->brand;
+    }
 
     public function setBrand(?Brand $brand): static
     {

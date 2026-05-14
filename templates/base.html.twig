@@ -3,24 +3,123 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Shop!{% endblock %}</title>
+
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-       
 
         {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
         {% if frankenphpHotReload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
+            <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
+            <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
+            <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
+
     <body>
-        <nav style="padding:10px;border-bottom:1px solid #ccc;">
-            <a href="{{ path('app_home') }}">Accueil</a> |
+
+        <nav style="padding:10px;border-bottom:1px solid #ccc;display:flex;gap:15px;align-items:center;">
+
+            <a href="{{ path('app_home') }}">Accueil</a>
+
             <a href="{{ path('product_index') }}">Produits</a>
+
+            <a href="/cart">
+                🛒 Panier (<span id="cart-count">0</span>)
+            </a>
+
         </nav>
 
         <div style="padding:20px;">
             {% block body %}{% endblock %}
         </div>
+
+        <script>
+        // =========================
+        // AJOUT PANIER
+        // =========================
+        async function addToCart(productId) {
+
+            const response = await fetch(`/cart/add/${productId}`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await updateCartCounter();
+                showToast("Produit ajouté au panier");
+            }
+        }
+
+        // =========================
+        // SUPPRESSION PANIER
+        // =========================
+        async function removeFromCart(productId) {
+
+            const response = await fetch(`/cart/remove/${productId}`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await updateCartCounter();
+                location.reload();
+            }
+        }
+
+        // =========================
+        // COMPTEUR PANIER
+        // =========================
+        async function updateCartCounter() {
+
+            try {
+                const response = await fetch('/cart/count');
+                const data = await response.json();
+
+                const el = document.getElementById('cart-count');
+
+                if (el) {
+                    el.innerText = data.count ?? 0;
+                }
+
+            } catch (e) {
+                const el = document.getElementById('cart-count');
+                if (el) el.innerText = 0;
+            }
+        }
+
+        // =========================
+        // TOAST NOTIFICATION
+        // =========================
+        function showToast(message) {
+
+            const toast = document.createElement('div');
+            toast.innerText = message;
+
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.background = '#15848F';
+            toast.style.color = 'white';
+            toast.style.padding = '10px 15px';
+            toast.style.borderRadius = '6px';
+            toast.style.zIndex = '9999';
+            toast.style.boxShadow = '0 4px 10px rgba(0,0,0,0.15)';
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+
+        // =========================
+        // INIT
+        // =========================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCounter();
+        });
+        </script>
+
     </body>
 </html>

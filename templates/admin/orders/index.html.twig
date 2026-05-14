@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Commandes{% endblock %}
+
+{% block body %}
+
+<h1>Commandes</h1>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.firstName }} {{ order.lastName }}</td>
+                <td>{{ order.email }}</td>
+                <td>{{ order.total }} €</td>
+                <td>
+                    {% if order.status == 'paid' %}
+                        <span style="color:green;font-weight:bold;">Payée</span>
+
+                    {% elseif order.status == 'pending' %}
+                        <span style="color:orange;font-weight:bold;">En attente</span>
+
+                    {% elseif order.status == 'shipped' %}
+                        <span style="color:blue;font-weight:bold;">Expédiée</span>
+
+                    {% elseif order.status == 'cancelled' %}
+                        <span style="color:red;font-weight:bold;">Annulée</span>
+
+                    {% endif %}
+                </td>
+                <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <a href="{{ path('admin_orders_show', {id: order.id}) }}">
+                        Voir
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

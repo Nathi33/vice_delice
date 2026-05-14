@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Création de compte{% endblock %}
+
+{% block body %}
+
+<div style="max-width:500px;margin:60px auto;padding:30px;border:1px solid #ddd;border-radius:10px;">
+
+    <h1 style="margin-bottom:20px;">Créer un compte</h1>
+
+    {% for flash_error in app.flashes('verify_email_error') %}
+        <div style="background:#e74c3c;color:white;padding:10px;border-radius:6px;margin-bottom:15px;">
+            {{ flash_error }}
+        </div>
+    {% endfor %}
+
+    {{ form_errors(registrationForm) }}
+
+    {{ form_start(registrationForm) }}
+
+        <div style="margin-bottom:15px;">
+            {{ form_row(registrationForm.email) }}
+        </div>
+
+        <div style="margin-bottom:15px;">
+            {{ form_row(registrationForm.plainPassword, {
+                label: 'Mot de passe'
+            }) }}
+        </div>
+
+        <div style="margin-bottom:15px;">
+            {{ form_row(registrationForm.agreeTerms) }}
+        </div>
+
+        {# =========================
+           MENTION MAJORITÉ
+           ========================= #}
+        <div style="margin:20px 0;padding:15px;background:#f8f9fa;border:1px solid #ddd;border-radius:8px;">
+
+            <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;">
+
+                <span>
+                    {{ form_row(registrationForm.adultConfirm) }}
+                </span>
+
+            </label>
+
+        </div>
+
+        <button type="submit"
+                style="width:100%;padding:12px;background:#6A1857;color:white;border:none;border-radius:6px;font-weight:bold;">
+            Créer mon compte
+        </button>
+
+    {{ form_end(registrationForm) }}
+
+    <hr style="margin:25px 0;">
+
+    <p style="text-align:center;">
+        Déjà un compte ?
+        <a href="{{ path('app_login') }}">Se connecter</a>
+    </p>
+
+</div>
+
+{% endblock %}

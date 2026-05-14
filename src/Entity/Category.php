@@ -18,10 +18,6 @@ class Category
     #[ORM\Column]
     private ?int $id = null;
 
-    // =========================
-    // IMPORT KEY (TRÈS IMPORTANT)
-    // =========================
-
     #[ORM\Column(length: 100, nullable: true, unique: true)]
     private ?string $externalReference = null;
 
@@ -48,15 +44,9 @@ class Category
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?self $parent = null;
 
-    /**
-     * @var Collection<int, self>
-     */
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
     private Collection $children;
 
-    /**
-     * @var Collection<int, Product>
-     */
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
     private Collection $products;
 
@@ -79,6 +69,10 @@ class Category
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    // =========================
+    // LIFECYCLE
+    // =========================
+
     #[ORM\PreUpdate]
     public function touch(): void
     {
@@ -89,18 +83,26 @@ class Category
     // GETTERS / SETTERS
     // =========================
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     public function getExternalReference(): ?string
     {
         return $this->externalReference;
     }
 
-    public function setExternalReference(?string $ref): static
+    public function setExternalReference(?string $externalReference): static
     {
-        $this->externalReference = $ref;
+        $this->externalReference = $externalReference;
         return $this;
     }
 
-    public function getName(): string { return $this->name; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     public function setName(string $name): static
     {
@@ -108,7 +110,10 @@ class Category
         return $this;
     }
 
-    public function getSlug(): string { return $this->slug; }
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
 
     public function setSlug(string $slug): static
     {
@@ -116,7 +121,43 @@ class Category
         return $this;
     }
 
-    public function getParent(): ?self { return $this->parent; }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+        return $this;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
 
     public function setParent(?self $parent): static
     {
@@ -127,5 +168,25 @@ class Category
     public function getChildren(): Collection
     {
         return $this->children;
+    }
+
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 }

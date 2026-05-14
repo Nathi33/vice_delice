@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Marques{% endblock %}
+
+{% block body %}
+
+<h1>Gestion des marques</h1>
+
+<table class="table">
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Slug</th>
+            <th>Statut</th>
+            <th>Date de création</th>
+            <th>Dernière modification</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for brand in brands %}
+
+            <tr>
+                <td>{{ brand.id }}</td>
+                <td>{{ brand.name }}</td>
+                <td>{{ brand.slug }}</td>
+
+                <td>
+                    {% if brand.isActive %}
+                        Actif
+                    {% else %}
+                        Inactif
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ brand.createdAt ? brand.createdAt|date('d/m/Y H:i') : '' }}
+                </td>
+
+                <td>
+                    {{ brand.updatedAt ? brand.updatedAt|date('d/m/Y H:i') : '' }}
+                </td>
+
+                <td>
+                    <a href="{{ path('admin_brand_show', {'id': brand.id}) }}">
+                        Voir
+                    </a>
+                    |
+                    <a href="{{ path('admin_brand_edit', {'id': brand.id}) }}">
+                        Modifier
+                    </a>
+                </td>
+            </tr>
+
+        {% else %}
+
+            <tr>
+                <td colspan="7">
+                    Aucune marque trouvée
+                </td>
+            </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<a href="{{ path('admin_brand_new') }}">
+    Créer une marque
+</a>
+
+{% endblock %}
