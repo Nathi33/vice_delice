@@ -16,29 +16,67 @@ class ProductController extends AbstractController
     // PAGE CATALOGUE
     // =========================
     #[Route('/products', name: 'product_index')]
-    public function index(CategoryRepository $categoryRepository): Response
+    public function index(CategoryRepository $categoryRepository, Request $request): Response
     {
         return $this->render('product/index.html.twig', [
             'categories' => $categoryRepository->findBy([], ['name' => 'ASC']),
+            'selectedCategory' => $request->query->get('category'),
         ]);
     }
 
     // =========================
-    // AJAX PRODUITS (CATALOGUE)
+    // AJAX PRODUITS
     // =========================
     #[Route('/products/ajax', name: 'product_ajax')]
     public function ajax(
         Request $request,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        CategoryRepository $categoryRepository
     ): JsonResponse {
 
         $limit = 24;
         $page = max(1, $request->query->getInt('page', 1));
         $offset = ($page - 1) * $limit;
 
-        $category = $request->query->get('category'); // slug
+        $categorySlug = $request->query->get('category');
         $sort = $request->query->get('sort', 'newest');
         $search = trim((string) $request->query->get('search', ''));
+
+        // =========================
+        // MAPPING HOMEPAGE (IMPORTANT)
+        // =========================
+        $mapping = [
+            'godes-dildos' => 'sextoys',
+
+            // ⚠️ on évite doublon logique
+            // "délices intimes" → lingerie / mode
+            'delices-intimes' => 'mode-et-lingerie',
+
+            'pharmacie' => 'pharmacie',
+        ];
+
+        $resolvedSlug = $mapping[$categorySlug] ?? $categorySlug;
+
+        // =========================
+        // CATÉGORIE + ENFANTS
+        // =========================
+        $categoryIds = null;
+
+        if (!empty($resolvedSlug)) {
+
+            $category = $categoryRepository->findOneBy([
+                'slug' => $resolvedSlug
+            ]);
+
+            if ($category) {
+
+                $categoryIds = [$category->getId()];
+
+                foreach ($category->getChildren() as $child) {
+                    $categoryIds[] = $child->getId();
+                }
+            }
+        }
 
         // =========================
         // PRODUITS
@@ -46,22 +84,23 @@ class ProductController extends AbstractController
         $products = $productRepository->findFilteredProducts(
             $limit,
             $offset,
-            $category,
+            $categoryIds,
             $search,
             $sort
         );
 
-        // ⚠️ IMPORTANT : même logique de filtre que findFilteredProducts
         $total = $productRepository->countFiltered(
-            $category,
+            $categoryIds,
             $search
         );
 
-        $totalPages = (int) ceil($total / $limit);
+        // ⚠️ sécurité division par 0
+        $totalPages = $limit > 0 ? (int) ceil($total / $limit) : 1;
 
         $data = [];
 
         foreach ($products as $product) {
+
             $data[] = [
                 'id' => $product->getId(),
                 'name' => $product->getName(),
@@ -75,6 +114,7 @@ class ProductController extends AbstractController
             'products' => $data,
             'currentPage' => $page,
             'totalPages' => $totalPages,
+            'total' => $total
         ]);
     }
 
@@ -93,7 +133,6 @@ class ProductController extends AbstractController
             ->leftJoin('p.category', 'c')
             ->addSelect('c')
             ->where('p.slug = :slug')
-            ->andWhere('p.isActive = 1')
             ->setParameter('slug', $slug)
             ->getQuery()
             ->getOneOrNullResult();
@@ -102,8 +141,52 @@ class ProductController extends AbstractController
             throw $this->createNotFoundException('Produit introuvable');
         }
 
+        $similarProducts = [];
+
+        if ($product->getCategory()) {
+
+            $categoryIds = [$product->getCategory()->getId()];
+
+            foreach ($product->getCategory()->getChildren() as $child) {
+                $categoryIds[] = $child->getId();
+            }
+
+            $similarProducts = $productRepository->createQueryBuilder('p')
+                ->leftJoin('p.productImages', 'pi')
+                ->addSelect('pi')
+                ->where('p.category IN (:categories)')
+                ->andWhere('p.id != :product')
+                ->andWhere('p.isActive = 1')
+                ->setParameter('categories', $categoryIds)
+                ->setParameter('product', $product->getId())
+                ->setMaxResults(4)
+                ->getQuery()
+                ->getResult();
+        }
+
         return $this->render('product/show.html.twig', [
             'product' => $product,
+            'similarProducts' => $similarProducts,
+        ]);
+    }
+
+    // =========================
+    // NOUVEAUTES
+    // =========================
+    #[Route('/nouveautes', name: 'product_new')]
+    public function newProducts(ProductRepository $productRepository): Response
+    {
+        $products = $productRepository->createQueryBuilder('p')
+            ->leftJoin('p.productImages', 'pi')
+            ->addSelect('pi')
+            ->where('p.isNew = 1')
+            ->andWhere('p.isActive = 1')
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('product/new.html.twig', [
+            'products' => $products
         ]);
     }
 }

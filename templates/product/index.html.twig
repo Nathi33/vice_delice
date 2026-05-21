@@ -1,46 +1,139 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Catalogue produits{% endblock %}
+{% block title %}Boutique — Vice & Délice{% endblock %}
 
 {% block body %}
 
-<h1>Catalogue produits</h1>
+{# ========================= HEADER CATALOGUE ========================= #}
+<section class="py-4">
 
-<div style="position:sticky;top:0;background:white;padding:15px;border-bottom:1px solid #ddd;z-index:10;">
+    <div class="container">
 
-    <form id="filterForm" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <div class="text-center mb-4">
 
-        <input type="text" id="search" placeholder="Rechercher un produit">
+            <p class="hero-subtitle mb-2">
+                Boutique intime
+            </p>
 
-        <select id="category">
-            <option value="">Toutes les catégories</option>
-            {% for category in categories %}
-                <option value="{{ category.slug }}">{{ category.name }}</option>
-            {% endfor %}
-        </select>
+            <h1 class="section-title">
+                Explorez vos envies
+            </h1>
 
-        <select id="sort">
-            <option value="newest">Plus récents</option>
-            <option value="price_asc">Prix croissant</option>
-            <option value="price_desc">Prix décroissant</option>
-        </select>
+        </div>
 
-        <button type="button" id="resetFilters">Réinitialiser</button>
+    </div>
 
-    </form>
+</section>
 
-</div>
+{# ========================= FILTRES ========================= #}
+<section class="sticky-top py-3"
+         style="background: var(--site-bg); border-bottom:1px solid var(--site-border); z-index:10;">
 
-<div id="productGrid"
-     style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:20px;">
-</div>
+    <div class="container">
 
-<div id="pagination" style="margin-top:30px;text-align:center;"></div>
+        <form id="filterForm"
+              class="d-flex flex-wrap gap-3 align-items-center justify-content-center">
 
+            {# SEARCH #}
+            <div class="lux-input">
+                <input type="text"
+                       id="search"
+                       placeholder="Rechercher un produit">
+            </div>
+
+            {# CATEGORY #}
+            <div class="lux-select" id="categorySelect">
+
+                <div class="lux-select-display">
+                    Toutes les catégories
+                </div>
+
+                <div class="lux-select-options">
+
+                    <div class="lux-option" data-value="">
+                        Toutes les catégories
+                    </div>
+
+                    {% for category in categories %}
+                        <div class="lux-option" data-value="{{ category.slug }}">
+                            {{ category.name }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+                <input type="hidden" id="category" value="">
+            </div>
+
+            {# SORT #}
+            <div class="lux-select" id="sortSelect">
+
+                <div class="lux-select-display">
+                    Plus récents
+                </div>
+
+                <div class="lux-select-options">
+
+                    <div class="lux-option" data-value="newest">
+                        Plus récents
+                    </div>
+
+                    <div class="lux-option" data-value="price_asc">
+                        Prix croissant
+                    </div>
+
+                    <div class="lux-option" data-value="price_desc">
+                        Prix décroissant
+                    </div>
+
+                </div>
+
+                <input type="hidden" id="sort" value="newest">
+            </div>
+
+            <button type="button"
+                    id="resetFilters"
+                    class="btn-outline-gold">
+                Réinitialiser
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+{# ========================= GRID PRODUITS ========================= #}
+<section class="py-5">
+
+    <div class="container">
+
+        <div id="productGrid" class="row g-4"></div>
+
+        <div id="pagination" class="text-center mt-5"></div>
+
+    </div>
+
+</section>
+
+{# ========================= JS ========================= #}
 <script>
 
 let currentPage = 1;
 
+/* =========================
+   SCROLL TO TOP (léger)
+========================= */
+function scrollTopPage() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+/* =========================
+   LOAD PRODUCTS
+========================= */
 function loadProducts(page = 1) {
 
     currentPage = page;
@@ -59,35 +152,59 @@ function loadProducts(page = 1) {
             data.products.forEach(p => {
 
                 grid.innerHTML += `
-                    <div style="border:1px solid #ddd;padding:10px;border-radius:6px;">
+                    <div class="col-6 col-md-4 col-lg-3">
 
-                        ${p.image ? `
-                            <img src="${p.image}"
-                                 style="width:100%;height:200px;object-fit:cover;margin-bottom:10px;">
-                        ` : `
-                            <div style="width:100%;height:200px;background:#eee;margin-bottom:10px;display:flex;align-items:center;justify-content:center;">
-                                Pas d'image
+                        <div class="product-card h-100 p-3">
+
+                            ${p.image ? `
+                                <img src="${p.image}" class="product-image mb-3">
+                            ` : `
+                                <div class="product-image mb-3 d-flex align-items-center justify-content-center text-muted">
+                                    Pas d'image
+                                </div>
+                            `}
+
+                            <h3 class="product-title mb-2">
+                                ${p.name}
+                            </h3>
+
+                            ${p.price ? `
+                                <p class="product-price mb-3">
+                                    ${p.price} €
+                                </p>
+                            ` : ''}
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <a href="/product/${p.slug}"
+                                   class="btn-outline-gold btn-sm">
+                                    Voir
+                                </a>
+
+                                <button onclick="addToCart(${p.id})"
+                                        class="btn-primary-custom btn-sm">
+                                    Ajouter
+                                </button>
+
                             </div>
-                        `}
 
-                        <h3>${p.name}</h3>
-
-                        ${p.price ? `<p><strong>${p.price} €</strong></p>` : ''}
-
-                        <a href="/product/${p.slug}">Voir</a> | 
-
-                        <button onclick="addToCart(${p.id})">
-                            Ajouter au panier
-                        </button>
+                        </div>
 
                     </div>
                 `;
             });
 
             renderPagination(data.currentPage, data.totalPages);
+
+            if (page > 1) {
+                scrollTopPage();
+            }
         });
 }
 
+/* =========================
+   PAGINATION
+========================= */
 function renderPagination(current, total) {
 
     let html = '';
@@ -95,35 +212,194 @@ function renderPagination(current, total) {
     const start = Math.max(1, current - 2);
     const end = Math.min(total, current + 2);
 
+    // =========================
+    // PREMIÈRE PAGE
+    // =========================
     if (current > 1) {
-        html += `<button onclick="loadProducts(${current - 1})">←</button>`;
+
+        html += `
+            <button class="btn-outline-gold mx-1"
+                    onclick="loadProducts(1)">
+                «
+            </button>
+        `;
+
+        html += `
+            <button class="btn-outline-gold mx-1"
+                    onclick="loadProducts(${current - 1})">
+                ←
+            </button>
+        `;
     }
 
+    // =========================
+    // PAGES
+    // =========================
     for (let i = start; i <= end; i++) {
+
         html += i === current
-            ? `<strong style="margin:0 5px;">${i}</strong>`
-            : `<button onclick="loadProducts(${i})">${i}</button>`;
+            ? `
+                <span class="mx-2"
+                      style="color:var(--site-accent); font-weight:600;">
+                    ${i}
+                </span>
+              `
+            : `
+                <button class="btn-outline-gold mx-1"
+                        onclick="loadProducts(${i})">
+                    ${i}
+                </button>
+              `;
     }
 
+    // =========================
+    // DERNIÈRE PAGE
+    // =========================
     if (current < total) {
-        html += `<button onclick="loadProducts(${current + 1})">→</button>`;
+
+        html += `
+            <button class="btn-outline-gold mx-1"
+                    onclick="loadProducts(${current + 1})">
+                →
+            </button>
+        `;
+
+        html += `
+            <button class="btn-outline-gold mx-1"
+                    onclick="loadProducts(${total})">
+                »
+            </button>
+        `;
     }
+
+    // =========================
+    // INFOS PAGINATION
+    // =========================
+    html += `
+        <div class="mt-3 small text-muted">
+            Page ${current} sur ${total}
+        </div>
+    `;
 
     document.getElementById('pagination').innerHTML = html;
 }
 
-document.getElementById('category').addEventListener('change', () => loadProducts(1));
-document.getElementById('sort').addEventListener('change', () => loadProducts(1));
-document.getElementById('search').addEventListener('input', () => loadProducts(1));
-
+/* =========================
+   RESET
+========================= */
 document.getElementById('resetFilters').addEventListener('click', () => {
+
     document.getElementById('category').value = '';
     document.getElementById('sort').value = 'newest';
     document.getElementById('search').value = '';
+
+    document.querySelector('#categorySelect .lux-select-display')
+        .textContent = 'Toutes les catégories';
+
+    document.querySelector('#sortSelect .lux-select-display')
+        .textContent = 'Plus récents';
+
+    document.getElementById('categorySelect').classList.remove('open');
+    document.getElementById('sortSelect').classList.remove('open');
+
+    loadProducts(1);
+    scrollTopPage();
+});
+
+/* =========================
+   CATEGORY SELECT
+========================= */
+const categorySelect = document.getElementById('categorySelect');
+const categoryDisplay = categorySelect.querySelector('.lux-select-display');
+const categoryOptions = categorySelect.querySelectorAll('.lux-option');
+const categoryHidden = document.getElementById('category');
+
+categoryDisplay.addEventListener('click', () => {
+    categorySelect.classList.toggle('open');
+});
+
+categoryOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+
+        categoryHidden.value = opt.dataset.value;
+        categoryDisplay.textContent = opt.textContent;
+
+        categorySelect.classList.remove('open');
+
+        loadProducts(1);
+    });
+});
+
+document.addEventListener('click', (e) => {
+    if (!categorySelect.contains(e.target)) {
+        categorySelect.classList.remove('open');
+    }
+});
+
+/* =========================
+   SORT SELECT
+========================= */
+const sortSelect = document.getElementById('sortSelect');
+const sortDisplay = sortSelect.querySelector('.lux-select-display');
+const sortOptions = sortSelect.querySelectorAll('.lux-option');
+const sortHidden = document.getElementById('sort');
+
+sortDisplay.addEventListener('click', () => {
+    sortSelect.classList.toggle('open');
+});
+
+sortOptions.forEach(opt => {
+    opt.addEventListener('click', () => {
+
+        sortHidden.value = opt.dataset.value;
+        sortDisplay.textContent = opt.textContent;
+
+        sortSelect.classList.remove('open');
+
+        loadProducts(1);
+    });
+});
+
+document.addEventListener('click', (e) => {
+    if (!sortSelect.contains(e.target)) {
+        sortSelect.classList.remove('open');
+    }
+});
+
+/* =========================
+   INIT + URL CATEGORY SUPPORT
+========================= */
+window.addEventListener('DOMContentLoaded', () => {
+
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category');
+
+    if (category) {
+
+        document.getElementById('category').value = category;
+
+        const option = document.querySelector(`.lux-option[data-value="${category}"]`);
+
+        if (option) {
+            categoryDisplay.textContent = option.textContent;
+        }
+    }
+
     loadProducts(1);
 });
 
-loadProducts(1);
+/* =========================
+   ADD TO CART
+========================= */
+async function addToCart(productId) {
+
+    await fetch(`/cart/add/${productId}`, {
+        method: 'POST'
+    });
+
+    updateCartCounter();
+    showLuxuryToast('Produit ajouté au panier');
+}
 
 </script>
 

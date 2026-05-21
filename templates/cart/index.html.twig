@@ -1,141 +1,313 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon panier{% endblock %}
+{% block title %}Mon panier — Vice & Délice{% endblock %}
 
 {% block body %}
 
-<div style="max-width:1200px;margin:auto;">
+<section class="py-5">
 
-    <h1 style="margin-bottom:30px;">Mon panier</h1>
+    <div class="container">
 
-    {% if cart.items is empty %}
+        <div class="mb-5">
 
-        <div style="padding:40px;border:1px solid #ddd;border-radius:8px;text-align:center;">
-            <h2>Votre panier est vide</h2>
-
-            <p style="color:#666;margin:20px 0;">
-                Découvrez nos produits et ajoutez vos favoris.
+            <p class="hero-subtitle mb-2">
+                Votre sélection
             </p>
 
-            <a href="{{ path('product_index') }}"
-               style="display:inline-block;padding:12px 20px;background:#15848F;color:white;text-decoration:none;border-radius:6px;">
-                Voir les produits
-            </a>
+            <h1 class="section-title">
+                Mon panier
+            </h1>
+
         </div>
 
-    {% else %}
+        {% if cart.items is empty %}
 
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:30px;align-items:start;">
+            <div class="empty-cart-card">
+                <h2 class="mb-3">Votre panier est vide</h2>
+                <p class="mb-4">
+                    Découvrez nos produits raffinés et ajoutez vos favoris.
+                </p>
 
-            {# ========================= LISTE ========================= #}
-            <div style="display:flex;flex-direction:column;gap:20px;">
-
-                {% for item in cart.items %}
-
-                    <div style="display:flex;gap:20px;border:1px solid #ddd;padding:15px;border-radius:8px;align-items:center;">
-
-                        <div>
-                            {% if item.product.mainImageUrl %}
-                                <img src="{{ item.product.mainImageUrl }}"
-                                     style="width:120px;height:120px;object-fit:cover;border-radius:6px;">
-                            {% else %}
-                                <div style="width:120px;height:120px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;">
-                                    Pas d'image
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div style="flex:1;">
-                            <h3>{{ item.product.name }}</h3>
-
-                            {% if item.product.price %}
-                                <p style="font-size:20px;font-weight:bold;color:#15848F;">
-                                    {{ item.product.price }} €
-                                </p>
-                            {% endif %}
-                        </div>
-
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <button onclick="decreaseCart({{ item.product.id }})">-</button>
-                            <strong>{{ item.qty }}</strong>
-                            <button onclick="addToCart({{ item.product.id }})">+</button>
-                        </div>
-
-                        <div style="min-width:120px;text-align:right;">
-                            <p style="font-weight:bold;">
-                                {{ item.subtotal|number_format(2, '.', ' ') }} €
-                            </p>
-
-                            <button onclick="removeFromCart({{ item.product.id }})">
-                                Supprimer
-                            </button>
-                        </div>
-
-                    </div>
-
-                {% endfor %}
-
+                <a href="{{ path('product_index') }}" class="btn-primary-custom">
+                    Découvrir la boutique
+                </a>
             </div>
 
-            {# ========================= RESUME ========================= #}
-            <div style="border:1px solid #ddd;padding:20px;border-radius:8px;position:sticky;top:20px;">
+        {% else %}
 
-                <h2>Résumé</h2>
+            <div class="cart-layout">
 
-                <div style="margin:20px 0;">
-                    <div style="display:flex;justify-content:space-between;">
-                        <span>Total</span>
-                        <strong>{{ cart.total|number_format(2, '.', ' ') }} €</strong>
-                    </div>
+                {# ===================== ITEMS ===================== #}
+                <div class="cart-items">
+
+                    {% for item in cart.items %}
+
+                        {% set stock = item.product.stock|default(0) %}
+                        {% set remainingStock = stock - item.qty %}
+
+                        <div class="cart-item-card">
+
+                            {# IMAGE #}
+                            <div class="cart-image-wrapper">
+
+                                {% if item.product.mainImageUrl %}
+                                    <img src="{{ item.product.mainImageUrl }}"
+                                         class="cart-product-image"
+                                         alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="cart-placeholder">Aucun visuel</div>
+                                {% endif %}
+
+                            </div>
+
+                            {# CONTENT #}
+                            <div class="cart-item-content">
+
+                                <div>
+
+                                    <h3 class="cart-product-title">
+                                        {{ item.product.name }}
+                                    </h3>
+
+                                    <div class="cart-product-price">
+                                        {{ item.product.price|number_format(2, ',', ' ') }} €
+                                    </div>
+
+                                    {# STOCK DYNAMIQUE #}
+                                    <div class="cart-stock-info"
+                                         data-stock="{{ stock }}"
+                                         data-product="{{ item.product.id }}">
+
+                                        {% if remainingStock > 0 %}
+                                            <div class="stock-badge in-stock mb-2">
+                                                ✔ En stock — {{ remainingStock }} disponible(s)
+                                            </div>
+                                        {% else %}
+                                            <div class="stock-badge out-stock mb-2">
+                                                ✖ Stock épuisé
+                                            </div>
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                                {# QUANTITY CONTROLS #}
+                                <div class="cart-actions">
+
+                                    <div class="qty-input-wrapper">
+
+                                        <button type="button"
+                                                class="qty-step-btn"
+                                                onclick="decreaseCart({{ item.product.id }})">
+                                            −
+                                        </button>
+
+                                        <input type="number"
+                                               class="qty-input"
+                                               id="qty-{{ item.product.id }}"
+                                               value="{{ item.qty }}"
+                                               min="1"
+                                               max="{{ stock }}"
+                                               oninput="updateQty({{ item.product.id }}, this.value)">
+
+                                        <button type="button"
+                                                class="qty-step-btn"
+                                                onclick="increaseCart({{ item.product.id }})">
+                                            +
+                                        </button>
+
+                                    </div>
+
+                                    <div class="cart-subtotal"
+                                         data-product="{{ item.product.id }}">
+                                        {{ item.subtotal|number_format(2, ',', ' ') }} €
+                                    </div>
+
+                                </div>
+
+                                <button type="button"
+                                        class="remove-btn"
+                                        onclick="removeFromCart({{ item.product.id }})">
+                                    Supprimer
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
                 </div>
 
-                <hr>
+                {# ===================== SUMMARY ===================== #}
+                <aside class="cart-summary">
 
-                {# ========================= BOUTON CHECKOUT ========================= #}
+                    <h2 class="summary-title">Résumé</h2>
 
-                {% if app.user %}
+                    <div class="summary-row">
+                        <span>Total</span>
+                        <strong id="cart-total">
+                            {{ cart.total|number_format(2, ',', ' ') }} €
+                        </strong>
+                    </div>
 
-                    <a href="{{ path('checkout_index') }}"
-                       style="display:block;text-align:center;padding:14px;background:#6A1857;color:white;text-decoration:none;border-radius:6px;font-weight:bold;">
-                        Commander
-                    </a>
+                    <div class="summary-divider"></div>
 
-                {% else %}
+                    <div class="summary-trust">
+                        ✔ Paiement sécurisé<br>
+                        ✔ Livraison discrète<br>
+                        ✔ Expédition rapide
+                    </div>
 
-                    <a href="{{ path('app_login') }}"
-                       style="display:block;text-align:center;padding:14px;background:#6A1857;color:white;text-decoration:none;border-radius:6px;font-weight:bold;">
-                        Se connecter pour commander
-                    </a>
+                    {% if app.user %}
 
-                {% endif %}
+                        <a href="{{ path('checkout_index') }}"
+                           class="btn-primary-custom w-100 mt-4">
+                            Commander
+                        </a>
 
-                <button onclick="clearCart()"
-                        style="width:100%;margin-top:10px;padding:12px;border:none;background:#ddd;border-radius:6px;">
-                    Vider le panier
-                </button>
+                    {% else %}
+
+                        <a href="{{ path('app_login') }}"
+                           class="btn-primary-custom w-100 mt-4">
+                            Se connecter pour commander
+                        </a>
+
+                    {% endif %}
+
+                    <button type="button"
+                            class="clear-cart-btn"
+                            onclick="clearCart()">
+                        Vider le panier
+                    </button>
+
+                </aside>
 
             </div>
 
-        </div>
+        {% endif %}
 
-    {% endif %}
+    </div>
 
-</div>
-
-{# ========================= JS ========================= #}
+</section>
 
 <script>
 
+function clampQty(value, max) {
+
+    value = parseInt(value);
+
+    if (isNaN(value) || value < 1) return 1;
+    if (max && value > max) return max;
+
+    return value;
+}
+
+function updateStockDisplay(productId, qty) {
+
+    const container = document.querySelector(`.cart-stock-info[data-product="${productId}"]`);
+    if (!container) return;
+
+    const stock = parseInt(container.dataset.stock);
+
+    let remaining = stock - qty;
+    if (remaining < 0) remaining = 0;
+
+    container.innerHTML = remaining > 0
+        ? `<div class="stock-badge in-stock mb-2">
+              ✔ En stock — ${remaining} disponible(s)
+           </div>`
+        : `<div class="stock-badge out-stock mb-2">
+              ✖ Stock épuisé
+           </div>`;
+}
+
+async function updateQty(productId, value) {
+
+    const input = document.getElementById(`qty-${productId}`);
+    const max = parseInt(input.getAttribute('max')) || 999;
+
+    const qty = clampQty(value, max);
+
+    input.value = qty;
+
+    const res = await fetch(`/cart/set/${productId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qty })
+    });
+
+    const data = await res.json();
+
+    input.value = data.qty;
+
+    updateStockDisplay(productId, data.qty);
+
+    const subtotalEl = document.querySelector(`.cart-subtotal[data-product="${productId}"]`);
+
+    if (subtotalEl && data.subtotal !== undefined) {
+        subtotalEl.innerText = parseFloat(data.subtotal).toFixed(2) + ' €';
+    }
+
+    updateCartTotal();
+}
+
+async function increaseCart(productId) {
+
+    const input = document.getElementById(`qty-${productId}`);
+    const max = parseInt(input.getAttribute('max')) || 999;
+
+    let qty = parseInt(input.value) + 1;
+
+    if (qty > max) return;
+
+    updateQty(productId, qty);
+}
+
 async function decreaseCart(productId) {
-    window.location.href = `/cart/decrease/${productId}`;
+
+    const input = document.getElementById(`qty-${productId}`);
+
+    let qty = parseInt(input.value) - 1;
+
+    if (qty < 1) qty = 1;
+
+    updateQty(productId, qty);
+}
+
+function updateCartTotal() {
+
+    let total = 0;
+
+    document.querySelectorAll('.cart-subtotal').forEach(el => {
+
+        const value = parseFloat(
+            el.innerText.replace('€', '').trim().replace(',', '.')
+        );
+
+        if (!isNaN(value)) total += value;
+    });
+
+    const totalEl = document.getElementById('cart-total');
+
+    if (totalEl) {
+        totalEl.innerText = total.toFixed(2) + ' €';
+    }
 }
 
 async function removeFromCart(productId) {
-    window.location.href = `/cart/remove/${productId}`;
+
+    await fetch(`/cart/remove/${productId}`, { method: 'POST' });
+
+    location.reload();
 }
 
 async function clearCart() {
-    window.location.href = `/cart/clear`;
+
+    await fetch(`/cart/clear`, { method: 'POST' });
+
+    location.reload();
 }
 
 </script>

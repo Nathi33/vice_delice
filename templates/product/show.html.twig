@@ -1,91 +1,356 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ product.name }}{% endblock %}
+{% block title %}{{ product.name }} — Vice & Délice{% endblock %}
 
 {% block body %}
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:1100px;margin:auto;">
+<section class="py-5 product-page">
+<div class="container">
 
-    {# =========================
-       IMAGES
-       ========================= #}
-    <div>
+{# ========================= RETOUR ========================= #}
+<div class="mb-4 d-flex gap-3">
+    <button type="button"
+            onclick="window.history.back()"
+            class="btn-outline-gold">
+        ← Page précédente
+    </button>
+</div>
+
+<div class="row g-5 align-items-start">
+
+{# ========================= GALERIE ========================= #}
+<div class="col-lg-6">
+
+    <div class="product-gallery">
 
         {% set mainImage = product.mainImageUrl %}
 
         {% if mainImage %}
-            <img src="{{ mainImage }}"
-                 style="width:100%;height:450px;object-fit:cover;border-radius:8px;">
+
+            <div class="product-main-image-wrapper mb-3">
+
+                <a href="{{ mainImage }}"
+                   class="glightbox"
+                   data-gallery="product-gallery">
+
+                    <img
+                        src="{{ mainImage }}"
+                        id="mainProductImage"
+                        class="product-main-image"
+                        alt="{{ product.name }}"
+                    >
+
+                </a>
+
+            </div>
+
         {% else %}
-            <div style="width:100%;height:450px;background:#eee;display:flex;align-items:center;justify-content:center;">
+
+            <div class="product-main-placeholder">
                 Pas d'image
             </div>
+
         {% endif %}
 
         {% if product.productImages|length > 1 %}
-            <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+
+            <div class="product-thumbnails">
+
                 {% for image in product.productImages %}
-                    <img src="{{ image.url }}"
-                         style="width:80px;height:80px;object-fit:cover;border-radius:4px;border:1px solid #ddd;">
+
+                    <a href="{{ image.url }}"
+                       class="glightbox thumbnail-link"
+                       data-gallery="product-gallery">
+
+                        <img
+                            src="{{ image.url }}"
+                            class="thumbnail-image"
+                            alt="{{ product.name }}"
+                        >
+
+                    </a>
+
                 {% endfor %}
+
             </div>
+
         {% endif %}
-
-    </div>
-
-    {# =========================
-       INFOS PRODUIT
-       ========================= #}
-    <div>
-
-        <h1>{{ product.name }}</h1>
-
-        {% if product.price %}
-            <h2 style="color:#15848F;">{{ product.price }} €</h2>
-        {% endif %}
-
-        {% if product.category %}
-            <p style="color:#666;">
-                Catégorie : {{ product.category.name }}
-            </p>
-        {% endif %}
-
-        <div style="margin:20px 0;">
-            {{ product.description|nl2br }}
-        </div>
-
-        {% if product.stock %}
-            <p>Stock : {{ product.stock }}</p>
-        {% endif %}
-
-        {# =========================
-           BOUTON PANIER (FIX)
-           ========================= #}
-        <button onclick="addToCart({{ product.id }})"
-                style="padding:10px 20px;background:#6A1857;color:white;border:none;border-radius:6px;">
-            Ajouter au panier
-        </button>
 
     </div>
 
 </div>
 
-{# =========================
-   PRODUITS SIMILAIRES
-   ========================= #}
+{# ========================= INFOS ========================= #}
+<div class="col-lg-6">
 
-{% if product.category %}
+    <div class="product-info-panel sticky-lg-top">
 
-    <h3 style="margin-top:50px;">Produits similaires</h3>
+        {% if product.category %}
+            <p class="hero-subtitle mb-2">
+                {{ product.category.name }}
+            </p>
+        {% endif %}
 
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+        <h1 class="product-detail-title mb-3">
+            {{ product.name }}
+        </h1>
 
-        <p style="grid-column:span 4;color:#666;">
-            (on ajoutera les produits liés ensuite)
-        </p>
+        {% if product.price %}
+            <div class="mb-4">
+                <span class="product-price-large">
+                    {{ product.price|number_format(2, ',', ' ') }} €
+                </span>
+            </div>
+        {% endif %}
+
+        {# ========================= STOCK ========================= #}
+        {% set stock = product.stock|default(0) %}
+
+        {% if stock > 0 %}
+            <div class="stock-badge in-stock mb-4">
+                ✔ En stock — {{ stock }} disponible(s)
+            </div>
+        {% else %}
+            <div class="stock-badge out-stock mb-4">
+                ✖ Rupture de stock
+            </div>
+        {% endif %}
+
+        <div class="product-description mb-4">
+            {{ product.description|nl2br }}
+        </div>
+
+        {# ========================= QUANTITÉ ========================= #}
+        <div class="mb-4">
+
+            <label for="qty" class="form-label quantity-label">
+                Quantité
+            </label>
+
+            <select id="qty"
+                    class="form-select quantity-select"
+                    {% if stock == 0 %}disabled{% endif %}>
+
+                {% set maxQty = stock < 10 ? stock : 10 %}
+
+                {% for i in 1..maxQty %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        {# ========================= CTA ========================= #}
+        <div class="d-grid gap-3">
+
+            <button
+                onclick="addProductQtyToCart({{ product.id }}, {{ stock }})"
+                class="btn-primary-custom btn-lg-custom"
+                {% if stock == 0 %}disabled{% endif %}
+            >
+                Ajouter au panier
+            </button>
+
+            <a href="{{ path('product_index') }}"
+               class="btn-outline-gold text-center">
+                Continuer mes achats
+            </a>
+
+        </div>
 
     </div>
 
+</div>
+
+</div>
+
+{# ========================= TRUST ========================= #}
+<div class="trust-box trust-box-full mt-5">
+
+    <div class="trust-item">
+        <div class="trust-icon">✔</div>
+        <div>
+            <strong>Livraison discrète</strong>
+            <p>Colis neutre & confidentialité garantie</p>
+        </div>
+    </div>
+
+    <div class="trust-item">
+        <div class="trust-icon">✔</div>
+        <div>
+            <strong>Paiement sécurisé</strong>
+            <p>Transactions protégées & fiables</p>
+        </div>
+    </div>
+
+    <div class="trust-item">
+        <div class="trust-icon">✔</div>
+        <div>
+            <strong>Expédition rapide</strong>
+            <p>Envoi depuis la France sous 24/48h</p>
+        </div>
+    </div>
+
+</div>
+
+</div>
+</section>
+
+{# ========================= SIMILAIRES ========================= #}
+{% if product.category %}
+
+<section class="py-5">
+<div class="container">
+
+<h2 class="section-title text-center mb-5">
+    Vous pourriez aussi aimer
+</h2>
+
+<div class="row g-4">
+
+{% for similarProduct in similarProducts %}
+
+<div class="col-6 col-lg-3">
+
+    <div class="product-card h-100">
+
+        <a href="{{ path('product_show', { slug: similarProduct.slug }) }}">
+
+            {% if similarProduct.mainImageUrl %}
+                <img src="{{ similarProduct.mainImageUrl }}"
+                     class="product-image"
+                     alt="{{ similarProduct.name }}">
+            {% else %}
+                <div class="product-placeholder-image">Aucun visuel</div>
+            {% endif %}
+
+        </a>
+
+        <div class="p-3 d-flex flex-column h-100">
+
+            <h3 class="product-title">
+                <a href="{{ path('product_show', { slug: similarProduct.slug }) }}">
+                    {{ similarProduct.name }}
+                </a>
+            </h3>
+
+            <div class="mt-auto">
+
+                <div class="product-price mb-3">
+                    {{ similarProduct.price|number_format(2, ',', ' ') }} €
+                </div>
+
+                <div class="d-grid gap-2">
+
+                    <a href="{{ path('product_show', { slug: similarProduct.slug }) }}"
+                       class="btn-outline-gold text-center">
+                        Voir
+                    </a>
+
+                    <button onclick="addToCart({{ similarProduct.id }})"
+                            class="btn-primary-custom">
+                        Ajouter
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+</div>
+</div>
+</section>
+
 {% endif %}
+
+{# ========================= MOBILE CTA ========================= #}
+<div class="mobile-add-to-cart d-lg-none">
+
+    <div class="mobile-price">
+        {{ product.price|number_format(2, ',', ' ') }} €
+    </div>
+
+    <button
+        onclick="addProductQtyToCart({{ product.id }}, {{ stock }})"
+        class="btn-primary-custom mobile-cart-btn"
+        {% if stock == 0 %}disabled{% endif %}
+    >
+        Ajouter au panier
+    </button>
+
+</div>
+
+{% endblock %}
+
+{# ========================= JS ========================= #}
+{% block javascripts %}
+{{ parent() }}
+
+<script>
+
+const lightbox = GLightbox({
+    touchNavigation: true,
+    loop: true,
+    zoomable: true
+});
+
+// thumbnails
+document.querySelectorAll('.thumbnail-image').forEach(img => {
+    img.addEventListener('click', function () {
+        document.querySelectorAll('.thumbnail-image')
+            .forEach(i => i.classList.remove('active-thumb'));
+
+        this.classList.add('active-thumb');
+    });
+});
+
+// AJOUT PANIER AVEC STOCK
+async function addProductQtyToCart(productId, stock) {
+
+    const qty = parseInt(document.getElementById('qty').value);
+
+    if (stock <= 0) return;
+
+    if (qty > stock) {
+        showLuxuryToast(`Stock insuffisant (${stock} dispo)`);
+        return;
+    }
+
+    for (let i = 0; i < qty; i++) {
+        await fetch(`/cart/add/${productId}`, { method: 'POST' });
+    }
+
+    if (typeof updateCartCounter === 'function') {
+        updateCartCounter();
+    }
+
+    showLuxuryToast(`${qty} produit(s) ajouté(s)`);
+}
+
+function showLuxuryToast(message) {
+
+    const toast = document.createElement('div');
+    toast.classList.add('luxury-toast');
+    toast.innerHTML = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.classList.add('show'), 50);
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2000);
+}
+
+</script>
 
 {% endblock %}
