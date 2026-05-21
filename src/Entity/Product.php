@@ -44,6 +44,12 @@ class Product
     #[ORM\Column(options: ['default' => true])]
     private bool $isActive = true;
 
+    #[ORM\Column]
+    private bool $isFeatured = false;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isNew = false;
+
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Category $category = null;
@@ -318,6 +324,29 @@ class Product
     public function setSeoSlug(?string $seoSlug): static
     {
         $this->seoSlug = $seoSlug;
+        return $this;
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(bool $isFeatured): static
+    {
+        $this->isFeatured = $isFeatured;
+
+        return $this;
+    }
+
+    public function isNew(): bool
+    {
+        return $this->isNew;
+    }
+
+    public function setIsNew(bool $isNew): self
+    {
+        $this->isNew = $isNew;
         return $this;
     }
 }

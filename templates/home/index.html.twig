@@ -1,11 +1,397 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}Vice & Délice — Boutique intime premium{% endblock %}
 
 {% block body %}
-<h1>Mon e-commerce</h1>
 
-<p>Bienvenue sur le catalogue produits.</p>
+{# ========================= HERO ========================= #}
+<section class="hero-section py-5">
 
-<a href="{{ path('product_index') }}">Voir les produits</a>
+    <div class="container">
+
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-6">
+
+                <p class="hero-subtitle mb-3">
+                    Sensualité moderne & élégante
+                </p>
+
+                <h1 class="hero-title mb-4">
+                    Explorez le plaisir avec style
+                </h1>
+
+                <p class="hero-description mb-4">
+                    Une sélection premium de lingerie, accessoires et jouets intimes
+                    pensée pour une expérience raffinée, discrète et moderne.
+                </p>
+
+                <div class="d-flex gap-3 flex-wrap">
+
+                    <a href="{{ path('product_index') }}"
+                       class="btn-primary-custom">
+                        Découvrir la boutique
+                    </a>
+
+                    <a href="{{ path('product_new') }}"
+                        class="btn-outline-gold">
+                            Nouveautés
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <img src="{{ asset('images/home/hero.png') }}"
+                     class="img-fluid rounded-4 shadow-lg hero-image"
+                     alt="Vice & Délice">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{# ========================= PRODUITS MIS EN AVANT ========================= #}
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-end mb-5">
+
+            <div>
+
+                <p class="hero-subtitle mb-1">
+                    Sélection
+                </p>
+
+                <h2 class="section-title">
+                    Produits en avant
+                </h2>
+
+            </div>
+
+            <a href="{{ path('product_index') }}"
+               class="btn-outline-gold">
+                Voir tout
+            </a>
+
+        </div>
+
+        <div class="row g-4">
+
+            {% for product in featuredProducts %}
+
+                <div class="col-6 col-md-4 col-lg-3">
+
+                    <div class="product-card h-100 p-3 d-flex flex-column">
+
+                        <a href="{{ path('product_show', { slug: product.slug }) }}">
+
+                            {% if product.mainImageUrl %}
+
+                                <img src="{{ product.mainImageUrl }}"
+                                    class="product-image mb-3"
+                                    alt="{{ product.name }}">
+
+                            {% else %}
+
+                                <div class="product-image mb-3 d-flex align-items-center justify-content-center text-muted">
+                                    Pas d'image
+                                </div>
+
+                            {% endif %}
+
+                        </a>
+
+                        <h3 class="product-title mb-3">
+                            {{ product.name }}
+                        </h3>
+
+                        {# pousse le bas de card vers le bas #}
+                        <div class="mt-auto">
+
+                            <p class="product-price mb-3">
+                                {{ product.price|number_format(2, ',', ' ') }} €
+                            </p>
+
+                            <a href="{{ path('product_show', { slug: product.slug }) }}"
+                            class="btn-outline-gold w-100 text-center">
+                                Voir
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="col-12">
+
+                    <div class="empty-cart-card text-center">
+
+                        <h3 class="mb-3">
+                            Produits bientôt disponibles
+                        </h3>
+
+                        <p class="mb-0">
+                            Notre sélection premium arrive prochainement.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{# ========================= UNIVERS PREMIUM ========================= #}
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <p class="hero-subtitle">
+                Univers
+            </p>
+
+            <h2 class="section-title">
+                Explorez vos envies
+            </h2>
+
+        </div>
+
+        <div class="row g-4">
+
+            {# ================= SEXTOYS ================= #}
+            <div class="col-lg-4 col-md-6">
+
+                <a href="{{ path('product_index', { category: 'sextoys' }) }}"
+                   class="category-card-link">
+
+                    <div class="category-card">
+
+                        <img src="{{ asset('images/home/godes-dildos.webp') }}"
+                             class="category-card-img"
+                             alt="Sextoys">
+
+                        <div class="category-card-overlay">
+
+                            <div class="category-top">
+
+                                <p class="category-subtitle">
+                                    Plaisir & sensations
+                                </p>
+
+                                <h3 class="category-title">
+                                    Sextoys & Fantasmes
+                                </h3>
+
+                            </div>
+
+                            <span class="category-action">
+                                Explorer →
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            {# ================= MODE & LINGERIE ================= #}
+            <div class="col-lg-4 col-md-6">
+
+                <a href="{{ path('product_index', { category: 'mode-et-lingerie' }) }}"
+                   class="category-card-link">
+
+                    <div class="category-card">
+
+                        <img src="{{ asset('images/home/lingerie.png') }}"
+                             class="category-card-img"
+                             alt="Lingerie">
+
+                        <div class="category-card-overlay">
+
+                            <div class="category-top">
+
+                                <p class="category-subtitle">
+                                    Séduction & élégance
+                                </p>
+
+                                <h3 class="category-title">
+                                    Lingerie & Mode intime
+                                </h3>
+
+                            </div>
+
+                            <span class="category-action">
+                                Explorer →
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+            {# ================= PHARMACIE ================= #}
+            <div class="col-lg-4 col-md-6">
+
+                <a href="{{ path('product_index', { category: 'pharmacie' }) }}"
+                   class="category-card-link">
+
+                    <div class="category-card">
+
+                        <img src="{{ asset('images/home/pharmacie.jpg') }}"
+                             class="category-card-img"
+                             alt="Bien-être intime">
+
+                        <div class="category-card-overlay">
+
+                            <div class="category-top">
+
+                                <p class="category-subtitle">
+                                    Bien-être & intimité
+                                </p>
+
+                                <h3 class="category-title">
+                                    Hygiène & soins
+                                </h3>
+
+                            </div>
+
+                            <span class="category-action">
+                                Explorer →
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{# ========================= EXPERIENCE ========================= #}
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="cta-box text-center p-5">
+
+            <p class="hero-subtitle mb-2">
+                Vice & Délice
+            </p>
+
+            <h2 class="section-title mb-4">
+                Une expérience intime, libre et assumée
+            </h2>
+
+            <p class="hero-description mx-auto" style="max-width:800px;">
+                Une approche moderne de la sensualité,
+                pensée autour du plaisir, de l’élégance
+                et de la discrétion.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{# ========================= SERVICES ========================= #}
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="trust-box text-center h-100">
+                    <div class="trust-icon mx-auto mb-3">✔</div>
+                    <h3 class="mb-3">Livraison discrète</h3>
+                    <p class="mb-0">Colis neutre et confidentialité garantie.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="trust-box text-center h-100">
+                    <div class="trust-icon mx-auto mb-3">✔</div>
+                    <h3 class="mb-3">Paiement sécurisé</h3>
+                    <p class="mb-0">Transactions protégées et fiables.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="trust-box text-center h-100">
+                    <div class="trust-icon mx-auto mb-3">✔</div>
+                    <h3 class="mb-3">Expédition rapide</h3>
+                    <p class="mb-0">Envoi depuis la France sous 24/48h.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{# ========================= CTA FINAL ========================= #}
+<section class="py-5">
+
+    <div class="container text-center">
+
+        <h2 class="section-title mb-4">
+            Prêt(e) à explorer ?
+        </h2>
+
+        <a href="{{ path('product_index') }}"
+           class="btn-primary-custom btn-lg-custom">
+            Accéder à la boutique
+        </a>
+
+    </div>
+
+</section>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+
+const category = params.get('category');
+const sort = params.get('sort');
+
+if (sort) {
+    document.getElementById('sort').value = sort;
+
+    const option = document.querySelector(`.lux-option[data-value="${sort}"]`);
+
+    if (option) {
+        document.querySelector('#sortSelect .lux-select-display').textContent = option.textContent;
+    }
+}
+</script>
+
 {% endblock %}

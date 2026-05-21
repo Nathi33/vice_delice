@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveautés — Vice & Délice{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <h1 class="section-title mb-5 text-center">
+            Nouveautés
+        </h1>
+
+        <div class="row g-4">
+
+            {% for product in products %}
+
+                <div class="col-6 col-md-4 col-lg-3">
+
+                    <div class="product-card h-100 p-3 d-flex flex-column">
+
+                        <a href="{{ path('product_show', { slug: product.slug }) }}">
+                            <img src="{{ product.mainImageUrl }}"
+                                 class="product-image mb-3"
+                                 alt="{{ product.name }}">
+                        </a>
+
+                        <h3 class="product-title mb-3">
+                            {{ product.name }}
+                        </h3>
+
+                        <div class="mt-auto">
+
+                            <p class="product-price mb-3">
+                                {{ product.price|number_format(2, ',', ' ') }} €
+                            </p>
+
+                            <a href="{{ path('product_show', { slug: product.slug }) }}"
+                               class="btn-outline-gold w-100 text-center">
+                                Voir
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <div class="col-12 text-center">
+                    <p>Aucune nouveauté pour le moment.</p>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
