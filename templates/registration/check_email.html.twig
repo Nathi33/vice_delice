@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérifiez votre email — Vice & Délice{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-6 col-md-8">
+
+                <div class="product-card p-5 text-center">
+
+                    <div class="mb-4">
+                        <div style="width:70px;height:70px;
+                                    margin:auto;
+                                    border-radius:50%;
+                                    background:var(--site-surface-light);
+                                    display:flex;
+                                    align-items:center;
+                                    justify-content:center;
+                                    font-size:28px;
+                                    color:var(--site-accent);">
+                            ✉️
+                        </div>
+                    </div>
+
+                    <h1 class="section-title mb-3">
+                        Confirmez votre email
+                    </h1>
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                    <p class="hero-description mb-4">
+                        Un email de confirmation vient de vous être envoyé.<br>
+                        Cliquez sur le lien pour activer votre compte.
+                    </p>
+
+                    <div class="p-3 mb-4"
+                         style="background:var(--site-surface-light);
+                                border:1px solid rgba(255,255,255,0.08);
+                                border-radius:12px;
+                                font-size:14px;">
+
+                        <p class="mb-0">
+                            🔐 Votre compte sera activé uniquement après confirmation de votre email.
+                        </p>
+
+                    </div>
+
+                    <p class="mb-4" style="font-size:14px;color:rgba(255,255,255,0.65);">
+                        Pensez à vérifier vos spams si vous ne recevez pas l’email.
+                    </p>
+
+                    <div class="d-flex flex-column gap-3">
+
+                        <a href="{{ path('app_login') }}"
+                           class="btn-primary-custom">
+                            Aller à la connexion
+                        </a>
+
+                        <a href="{{ path('app_resend_verification') }}"
+                            class="btn-outline-gold"
+                            onclick="this.style.pointerEvents='none'; this.innerText='Envoi...';">
+                                Renvoyer l’email
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

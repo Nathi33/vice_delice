@@ -1,66 +1,299 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Création de compte{% endblock %}
+{% block title %}Créer un compte — Vice & Délice{% endblock %}
 
 {% block body %}
 
-<div style="max-width:500px;margin:60px auto;padding:30px;border:1px solid #ddd;border-radius:10px;">
+<section class="py-5">
 
-    <h1 style="margin-bottom:20px;">Créer un compte</h1>
+    <div class="container">
 
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div style="background:#e74c3c;color:white;padding:10px;border-radius:6px;margin-bottom:15px;">
-            {{ flash_error }}
+        <div class="row justify-content-center">
+
+            <div class="col-lg-6 col-md-9">
+
+                <div class="product-card p-4 p-md-5">
+
+                    {# ================= HEADER ================= #}
+                    <div class="text-center mb-5">
+
+                        <p class="hero-subtitle mb-2">
+                            Vice & Délice
+                        </p>
+
+                        <h1 class="section-title mb-3">
+                            Créer un compte
+                        </h1>
+
+                        <p class="hero-description mb-0">
+                            Rejoignez notre univers premium et profitez
+                            d’une expérience élégante, confidentielle
+                            et sécurisée.
+                        </p>
+
+                    </div>
+
+                    {# ================= FLASH ERRORS ================= #}
+                    {% for flash_error in app.flashes('verify_email_error') %}
+
+                        <div class="alert alert-danger rounded-4 mb-4">
+                            {{ flash_error }}
+                        </div>
+
+                    {% endfor %}
+
+                    {{ form_errors(registrationForm) }}
+
+                    {{ form_start(registrationForm) }}
+
+                        {# ================= NOM / PRENOM ================= #}
+                        <div class="row">
+
+                            <div class="col-md-6 mb-4">
+
+                                {{ form_label(registrationForm.firstName, null, {
+                                    label_attr: {
+                                        class: 'form-label text-light mb-2'
+                                    }
+                                }) }}
+
+                                {{ form_widget(registrationForm.firstName, {
+                                    attr: {
+                                        class: 'form-control luxury-input'
+                                    }
+                                }) }}
+
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(registrationForm.firstName) }}
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+
+                                {{ form_label(registrationForm.lastName, null, {
+                                    label_attr: {
+                                        class: 'form-label text-light mb-2'
+                                    }
+                                }) }}
+
+                                {{ form_widget(registrationForm.lastName, {
+                                    attr: {
+                                        class: 'form-control luxury-input'
+                                    }
+                                }) }}
+
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(registrationForm.lastName) }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {# ================= EMAIL ================= #}
+                        <div class="mb-4">
+
+                            {{ form_label(registrationForm.email, null, {
+                                label_attr: {
+                                    class: 'form-label text-light mb-2'
+                                }
+                            }) }}
+
+                            {{ form_widget(registrationForm.email, {
+                                attr: {
+                                    class: 'form-control luxury-input'
+                                }
+                            }) }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(registrationForm.email) }}
+                            </div>
+
+                        </div>
+
+                        {# ================= TELEPHONE ================= #}
+                        <div class="mb-4">
+
+                            {{ form_label(registrationForm.phone, null, {
+                                label_attr: {
+                                    class: 'form-label text-light mb-2'
+                                }
+                            }) }}
+
+                            {{ form_widget(registrationForm.phone, {
+                                attr: {
+                                    class: 'form-control luxury-input'
+                                }
+                            }) }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(registrationForm.phone) }}
+                            </div>
+
+                        </div>
+
+                        {# ================= PASSWORD ================= #}
+                        <div class="mb-4">
+
+                            {{ form_label(registrationForm.plainPassword.first, null, {
+                                label_attr: {
+                                    class: 'form-label text-light mb-2'
+                                }
+                            }) }}
+
+                            <div class="password-wrapper">
+
+                                {{ form_widget(registrationForm.plainPassword.first) }}
+
+                                <button
+                                    type="button"
+                                    class="password-toggle"
+                                    onclick="togglePassword(this)"
+                                    aria-label="Afficher le mot de passe"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </button>
+
+                            </div>
+
+                            <p class="footer-text small mt-2 mb-0">
+                                12 caractères minimum, avec une majuscule,
+                                une minuscule, un chiffre et un caractère spécial.
+                            </p>
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(registrationForm.plainPassword.first) }}
+                            </div>
+
+                        </div>
+
+                        {# ================= CONFIRM PASSWORD ================= #}
+                        <div class="mb-4">
+
+                            {{ form_label(registrationForm.plainPassword.second, null, {
+                                label_attr: {
+                                    class: 'form-label text-light mb-2'
+                                }
+                            }) }}
+
+                            <div class="password-wrapper">
+
+                                {{ form_widget(registrationForm.plainPassword.second) }}
+
+                                <button type="button"
+                                        class="password-toggle"
+                                        onclick="togglePassword(this)">
+                                    👁
+                                </button>
+
+                            </div>
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(registrationForm.plainPassword.second) }}
+                            </div>
+
+                        </div>
+
+                        {# ================= CONDITIONS ================= #}
+                        <div class="mb-4 p-3 rounded-4"
+                             style="background:var(--site-surface-light); border:1px solid var(--site-border);">
+
+                            <div class="form-check">
+
+                                {{ form_widget(registrationForm.agreeTerms, {
+                                    attr: {
+                                        class: 'form-check-input'
+                                    }
+                                }) }}
+
+                                {{ form_label(registrationForm.agreeTerms, null, {
+                                    label_attr: {
+                                        class: 'form-check-label text-light'
+                                    }
+                                }) }}
+
+                            </div>
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(registrationForm.agreeTerms) }}
+                            </div>
+
+                        </div>
+
+                        {# ================= MAJORITE ================= #}
+                        <div class="mb-4 p-3 rounded-4"
+                             style="background:var(--site-surface-light); border:1px solid var(--site-border);">
+
+                            <div class="form-check">
+
+                                {{ form_widget(registrationForm.adultConfirm, {
+                                    attr: {
+                                        class: 'form-check-input'
+                                    }
+                                }) }}
+
+                                {{ form_label(registrationForm.adultConfirm, null, {
+                                    label_attr: {
+                                        class: 'form-check-label text-light'
+                                    }
+                                }) }}
+
+                            </div>
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(registrationForm.adultConfirm) }}
+                            </div>
+
+                        </div>
+
+                        {# ================= BUTTON ================= #}
+                        <button type="submit"
+                                class="btn-primary-custom w-100 py-3">
+                            Créer mon compte
+                        </button>
+
+                    {{ form_end(registrationForm) }}
+
+                    {# ================= LOGIN ================= #}
+                    <div class="text-center mt-4">
+
+                        <p class="footer-text mb-2">
+                            Déjà un compte ?
+                        </p>
+
+                        <a href="{{ path('app_login') }}"
+                           class="btn-outline-gold">
+                            Se connecter
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-    {% endfor %}
 
-    {{ form_errors(registrationForm) }}
+    </div>
 
-    {{ form_start(registrationForm) }}
+</section>
 
-        <div style="margin-bottom:15px;">
-            {{ form_row(registrationForm.email) }}
-        </div>
+{% block javascripts %}
 
-        <div style="margin-bottom:15px;">
-            {{ form_row(registrationForm.plainPassword, {
-                label: 'Mot de passe'
-            }) }}
-        </div>
+<script>
+function togglePassword(button) {
 
-        <div style="margin-bottom:15px;">
-            {{ form_row(registrationForm.agreeTerms) }}
-        </div>
+    const input = button.parentElement.querySelector('input');
 
-        {# =========================
-           MENTION MAJORITÉ
-           ========================= #}
-        <div style="margin:20px 0;padding:15px;background:#f8f9fa;border:1px solid #ddd;border-radius:8px;">
+    if (input.type === 'password') {
+        input.type = 'text';
+    } else {
+        input.type = 'password';
+    }
+}
+</script>
 
-            <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;">
-
-                <span>
-                    {{ form_row(registrationForm.adultConfirm) }}
-                </span>
-
-            </label>
-
-        </div>
-
-        <button type="submit"
-                style="width:100%;padding:12px;background:#6A1857;color:white;border:none;border-radius:6px;font-weight:bold;">
-            Créer mon compte
-        </button>
-
-    {{ form_end(registrationForm) }}
-
-    <hr style="margin:25px 0;">
-
-    <p style="text-align:center;">
-        Déjà un compte ?
-        <a href="{{ path('app_login') }}">Se connecter</a>
-    </p>
-
-</div>
+{% endblock %}
 
 {% endblock %}

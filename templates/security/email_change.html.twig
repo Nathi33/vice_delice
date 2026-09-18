@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation de votre nouvelle adresse e-mail</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0f0b0d; font-family:Arial, sans-serif; color:#f7f1ec;">
+
+    <div style="max-width:600px; margin:40px auto; padding:40px 30px; background:#1a1216; border-radius:16px;">
+
+        <div style="text-align:center; margin-bottom:30px;">
+
+            <h1 style="margin:0; color:#c6a66b; font-size:28px;">
+                Vice &amp; Délice
+            </h1>
+
+        </div>
+
+        <h2 style="color:#f7f1ec; text-align:center; margin-bottom:25px;">
+            Confirmez votre nouvelle adresse e-mail
+        </h2>
+
+        <p style="color:#d9cfc8; line-height:1.7;">
+            Bonjour {{ user.firstName }},
+        </p>
+
+        <p style="color:#d9cfc8; line-height:1.7;">
+            Une demande de modification de votre adresse e-mail a été effectuée
+            depuis votre compte Vice &amp; Délice.
+        </p>
+
+        <p style="color:#d9cfc8; line-height:1.7;">
+            Pour confirmer cette modification et utiliser cette nouvelle adresse
+            pour votre compte, cliquez sur le bouton ci-dessous :
+        </p>
+
+        <div style="text-align:center; margin:35px 0;">
+
+            <a
+                href="{{ absolute_url(path('app_confirm_email_change', { token: token })) }}"
+                style="
+                    display:inline-block;
+                    padding:14px 28px;
+                    background:#5b1637;
+                    color:#f7f1ec;
+                    text-decoration:none;
+                    border-radius:10px;
+                    font-weight:bold;
+                "
+            >
+                Confirmer mon adresse e-mail
+            </a>
+
+        </div>
+
+        <p style="color:#d9cfc8; line-height:1.7;">
+            Cette demande est valable pendant <strong>1 heure</strong>.
+        </p>
+
+        <p style="color:#d9cfc8; line-height:1.7;">
+            Si vous n'êtes pas à l'origine de cette demande, vous pouvez simplement
+            ignorer cet e-mail.
+        </p>
+
+        <div style="border-top:1px solid rgba(198,166,107,0.18); margin-top:30px; padding-top:20px; text-align:center;">
+
+            <p style="margin:0; color:#8f8580; font-size:13px;">
+                Vice &amp; Délice
+            </p>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

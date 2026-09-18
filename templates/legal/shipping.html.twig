@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livraison{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <p class="hero-subtitle mb-2">
+                Vice & Délice
+            </p>
+
+            <h1 class="section-title mb-3">
+                Livraison
+            </h1>
+
+            <p class="hero-description mx-auto" style="max-width: 700px;">
+                Nous accordons une attention particulière à la préparation
+                et à l'expédition de chaque commande, dans le respect de
+                votre intimité et de votre discrétion.
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+
+            {# PRÉPARATION #}
+            <div class="col-md-6">
+
+                <div class="product-card p-4 h-100">
+
+                    <div class="mb-3">
+                        <i class="bi bi-box-seam fs-2 text-warning"></i>
+                    </div>
+
+                    <h2 class="h4 mb-3">
+                        Préparation de votre commande
+                    </h2>
+
+                    <p class="mb-0">
+                        Chaque commande est préparée avec soin avant
+                        son expédition. Les délais de préparation seront
+                        précisés prochainement selon les modalités définies
+                        par la boutique.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {# EXPÉDITION DISCRÈTE #}
+            <div class="col-md-6">
+
+                <div class="product-card p-4 h-100">
+
+                    <div class="mb-3">
+                        <i class="bi bi-shield-check fs-2 text-warning"></i>
+                    </div>
+
+                    <h2 class="h4 mb-3">
+                        Expédition discrète
+                    </h2>
+
+                    <p class="mb-0">
+                        Votre colis est préparé et expédié dans un emballage
+                        discret, sans indication permettant d'identifier
+                        la nature de votre commande.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {# MODES DE LIVRAISON #}
+            <div class="col-md-6">
+
+                <div class="product-card p-4 h-100">
+
+                    <div class="mb-3">
+                        <i class="bi bi-truck fs-2 text-warning"></i>
+                    </div>
+
+                    <h2 class="h4 mb-3">
+                        Modes de livraison
+                    </h2>
+
+                    <p class="mb-0">
+                        Les modes de livraison proposés, les zones
+                        desservies ainsi que les éventuels points relais
+                        seront indiqués lors de la finalisation des
+                        conditions commerciales.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {# FRAIS ET DÉLAIS #}
+            <div class="col-md-6">
+
+                <div class="product-card p-4 h-100">
+
+                    <div class="mb-3">
+                        <i class="bi bi-clock-history fs-2 text-warning"></i>
+                    </div>
+
+                    <h2 class="h4 mb-3">
+                        Frais et délais
+                    </h2>
+
+                    <p class="mb-0">
+                        Les frais de livraison et les délais estimatifs
+                        seront précisés avant la validation définitive
+                        de la commande.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# SUIVI #}
+        <div class="product-card p-5 mt-4">
+
+            <div class="row align-items-center g-4">
+
+                <div class="col-md-2 text-center">
+
+                    <i class="bi bi-geo-alt fs-1 text-warning"></i>
+
+                </div>
+
+                <div class="col-md-10">
+
+                    <h2 class="h4 mb-3">
+                        Suivi de votre commande
+                    </h2>
+
+                    <p class="mb-0">
+                        Lorsque le suivi sera disponible, les informations
+                        nécessaires vous seront communiquées afin de suivre
+                        l'acheminement de votre colis.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# PROBLÈME DE LIVRAISON #}
+        <div class="product-card p-5 mt-4">
+
+            <div class="row align-items-center g-4">
+
+                <div class="col-md-10">
+
+                    <h2 class="h4 mb-3">
+                        Un problème avec votre livraison ?
+                    </h2>
+
+                    <p class="mb-3">
+                        Si votre colis est endommagé, semble avoir été
+                        livré mais ne vous est pas parvenu, ou si vous
+                        rencontrez toute autre difficulté, notre équipe
+                        pourra vous accompagner.
+                    </p>
+
+                    <a href="{{ path('app_contact') }}" class="btn-outline-gold">
+                        Nous contacter
+                    </a>
+
+                </div>
+
+                <div class="col-md-2 text-center">
+
+                    <i class="bi bi-chat-dots fs-1 text-warning"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {# NOTE PROVISOIRE #}
+        <div class="text-center mt-5">
+
+            <p class="footer-text small">
+                Les modalités de livraison, les tarifs, les délais
+                et les zones desservies seront précisés lors de la
+                finalisation des conditions commerciales de la boutique.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

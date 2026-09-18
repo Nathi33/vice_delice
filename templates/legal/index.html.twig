@@ -1,20 +1,167 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello LegalController!{% endblock %}
+{% block title %}Mentions légales{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+<section class="py-5">
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/natha/vice-delice/src/Controller/LegalController.php</code></li>
-        <li>Your template at <code>C:/Users/natha/vice-delice/templates/legal/index.html.twig</code></li>
-    </ul>
+<div class="container">
+
+    <div class="text-center mb-5">
+
+        <p class="hero-subtitle mb-2">
+            Vice & Délice
+        </p>
+
+        <h1 class="section-title mb-3">
+            Mentions légales
+        </h1>
+
+        <p class="hero-description mx-auto" style="max-width: 700px;">
+            Retrouvez ici les informations légales relatives au site Vice & Délice.
+        </p>
+
+    </div>
+
+    <div class="product-card p-4 p-md-5 mx-auto" style="max-width: 900px;">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                Éditeur du site
+            </h2>
+
+            <p>
+                <strong>Nom / raison sociale :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>Adresse :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>Téléphone :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>E-mail :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>Forme juridique :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>SIREN / SIRET :</strong>
+                À compléter
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                Directeur de la publication
+            </h2>
+
+            <p>
+                <strong>Nom :</strong>
+                À compléter
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                Hébergement du site
+            </h2>
+
+            <p>
+                <strong>Hébergeur :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>Adresse :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>Téléphone :</strong>
+                À compléter
+            </p>
+
+            <p>
+                <strong>Site internet :</strong>
+                À compléter
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                Propriété intellectuelle
+            </h2>
+
+            <p>
+                L'ensemble des éléments présents sur ce site, notamment les textes,
+                images, graphismes, logos et éléments visuels, sont protégés par les
+                dispositions relatives à la propriété intellectuelle.
+            </p>
+
+            <p>
+                Toute reproduction, représentation, modification ou utilisation,
+                totale ou partielle, de ces éléments sans autorisation préalable
+                est susceptible de constituer une atteinte aux droits de leur titulaire.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                Contact
+            </h2>
+
+            <p>
+                Pour toute question concernant le site ou son contenu,
+                vous pouvez utiliser notre
+                <a href="{{ path('app_contact') }}" class="text-warning">
+                    formulaire de contact
+                </a>.
+            </p>
+
+        </div>
+
+        <div class="text-center mt-5">
+
+            <p class="footer-text small mb-0">
+                Les informations présentées sur cette page devront être complétées
+                et vérifiées avant la mise en ligne définitive du site.
+            </p>
+
+        </div>
+
+    </div>
+
 </div>
+
+</section>
+
 {% endblock %}

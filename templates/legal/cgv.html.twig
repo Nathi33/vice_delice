@@ -1,0 +1,231 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conditions générales de vente{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+<div class="container">
+
+    <div class="text-center mb-5">
+
+        <p class="hero-subtitle mb-2">
+            Vice & Délice
+        </p>
+
+        <h1 class="section-title mb-3">
+            Conditions générales de vente
+        </h1>
+
+        <p class="hero-description mx-auto" style="max-width: 700px;">
+            Les conditions applicables aux commandes passées sur le site Vice & Délice.
+        </p>
+
+    </div>
+
+    <div class="product-card p-4 p-md-5 mx-auto" style="max-width: 900px;">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                1. Objet
+            </h2>
+
+            <p>
+                Les présentes conditions générales de vente définissent les modalités
+                applicables aux ventes réalisées sur le site Vice & Délice.
+            </p>
+
+            <p>
+                Elles précisent notamment les conditions de commande, de paiement,
+                de livraison et de retour applicables aux produits proposés à la vente.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                2. Produits
+            </h2>
+
+            <p>
+                Les produits proposés à la vente sont présentés avec leurs
+                caractéristiques essentielles et leur prix.
+            </p>
+
+            <p>
+                Les informations définitives relatives aux produits, disponibilités
+                et éventuelles restrictions seront précisées avant la mise en ligne
+                définitive du site.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                3. Commande
+            </h2>
+
+            <p>
+                Le client sélectionne les produits qu'il souhaite commander,
+                les ajoute à son panier puis valide sa commande après avoir vérifié
+                les informations renseignées.
+            </p>
+
+            <p>
+                Les modalités précises de validation et de confirmation de commande
+                seront définies dans les conditions définitives.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                4. Prix
+            </h2>
+
+            <p>
+                Les prix affichés sur le site sont indiqués sur les fiches produits
+                et dans le panier avant validation de la commande.
+            </p>
+
+            <p>
+                Les modalités définitives concernant les prix, taxes, frais éventuels
+                et conditions particulières seront précisées avant la mise en ligne
+                définitive du site.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                5. Paiement
+            </h2>
+
+            <p>
+                Les moyens de paiement acceptés ainsi que les modalités de règlement
+                seront précisés dans les conditions définitives de vente.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                6. Livraison
+            </h2>
+
+            <p>
+                Les modalités de préparation, d'expédition, les zones desservies,
+                les frais et les délais de livraison seront précisés dans les
+                conditions définitives de vente.
+            </p>
+
+            <p>
+                Vous pouvez consulter la page
+                <a href="{{ path('app_shipping') }}" class="text-warning">
+                    Livraison
+                </a>
+                pour obtenir les informations actuellement disponibles.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                7. Droit de rétractation
+            </h2>
+
+            <p>
+                Les conditions d'exercice du droit de rétractation, ainsi que les
+                éventuelles exceptions applicables à certains produits, seront
+                précisées dans les conditions définitives de vente.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                8. Retours et remboursements
+            </h2>
+
+            <p>
+                Les modalités relatives aux retours, échanges éventuels et
+                remboursements seront précisées dans les conditions définitives
+                de vente.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                9. Responsabilité
+            </h2>
+
+            <p>
+                Les dispositions relatives à la responsabilité du vendeur,
+                à l'utilisation du site et aux éventuelles limitations applicables
+                seront précisées dans les conditions définitives.
+            </p>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="legal-section">
+
+            <h2 class="h4 mb-3">
+                10. Contact
+            </h2>
+
+            <p>
+                Pour toute question concernant une commande ou les conditions de vente,
+                vous pouvez utiliser notre
+                <a href="{{ path('app_contact') }}" class="text-warning">
+                    formulaire de contact
+                </a>.
+            </p>
+
+        </div>
+
+        <div class="text-center mt-5">
+
+            <p class="footer-text small mb-0">
+                Cette page constitue une structure provisoire.
+                Les conditions générales définitives devront être complétées
+                et vérifiées avant la mise en ligne du site.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+{% endblock %}

@@ -169,9 +169,9 @@
 
                     {% else %}
 
-                        <a href="{{ path('app_login') }}"
-                           class="btn-primary-custom w-100 mt-4">
-                            Se connecter pour commander
+                        <a href="{{ path('app_login', { redirect: app.request.pathInfo }) }}"
+                            class="btn-primary-custom w-100 mt-4">
+                                Se connecter pour commander
                         </a>
 
                     {% endif %}

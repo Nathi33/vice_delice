@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mes informations — Vice & Délice{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="mb-4">
+            <a href="{{ path('app_account') }}" class="account-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour à mon compte
+            </a>
+        </div>
+
+        <div class="text-center mb-5">
+
+            <p class="hero-subtitle mb-2">
+                Informations personnelles
+            </p>
+
+            <h1 class="section-title mb-3">
+                Modifier mes informations
+            </h1>
+
+            <p class="hero-description account-description">
+                Mettez à jour votre adresse e-mail et votre numéro de téléphone.
+            </p>
+
+        </div>
+
+        <div class="row justify-content-center">
+
+            <div class="col-12 col-md-8 col-lg-6">
+
+                <div class="product-card p-4 p-md-5">
+
+                    {{ form_start(form) }}
+
+                        <div class="mb-4">
+                            {{ form_label(form.email, null, {
+                                label_attr: {
+                                    class: 'form-label text-light mb-2'
+                                }
+                            }) }}
+
+                            {{ form_widget(form.email) }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(form.email) }}
+                            </div>
+
+                            <p class="footer-text small mt-2 mb-0">
+                                Une modification de votre adresse e-mail devra être confirmée.
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_label(form.phone, null, {
+                                label_attr: {
+                                    class: 'form-label text-light mb-2'
+                                }
+                            }) }}
+
+                            {{ form_widget(form.phone) }}
+
+                            <div class="text-danger small mt-1">
+                                {{ form_errors(form.phone) }}
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="bi bi-check2 me-2"></i>
+                                Enregistrer les modifications
+                            </button>
+
+                        </div>
+
+                    {{ form_end(form) }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

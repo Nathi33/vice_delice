@@ -4,39 +4,242 @@
 
 {% block body %}
 
-<h1>Commande #{{ order.id }}</h1>
+<section class="py-5">
 
-<p><strong>Client :</strong> {{ order.firstName }} {{ order.lastName }}</p>
-<p><strong>Email :</strong> {{ order.email }}</p>
-<p><strong>Adresse :</strong> {{ order.address }}, {{ order.postalCode }} {{ order.city }}</p>
-<p><strong>Total :</strong> {{ order.total }} €</p>
-<p><strong>Status :</strong> {{ order.status }}</p>
+    <div class="container">
 
-<hr>
+        <div class="mb-4">
+            <a href="{{ path('admin_orders_index') }}" class="account-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour aux commandes
+            </a>
+        </div>
 
-<h2>Produits</h2>
+        <div class="text-center mb-5">
+            <p class="hero-subtitle mb-2">
+                Administration
+            </p>
 
-<ul>
-    {% for item in order.items %}
-        <li>
-            {{ item.productName }} x{{ item.quantity }} - {{ item.price }} €
-        </li>
-    {% endfor %}
-</ul>
+            <h1 class="section-title mb-3">
+                Commande #{{ order.id }}
+            </h1>
+        </div>
 
-<hr>
+        <div class="row g-4">
 
-<h2>Changer statut</h2>
+            {# =========================
+               INFORMATIONS CLIENT
+               ========================= #}
 
-<form method="POST" action="{{ path('admin_orders_status', {id: order.id}) }}">
-    <select name="status">
-        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
-        <option value="paid" {% if order.status == 'paid' %}selected{% endif %}>Paid</option>
-        <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
-        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-    </select>
+            <div class="col-lg-6">
 
-    <button type="submit">Mettre à jour</button>
-</form>
+                <div class="product-card p-4 h-100">
+
+                    <h2 class="h5 mb-4">
+                        <i class="bi bi-person me-2"></i>
+                        Informations client
+                    </h2>
+
+                    <p class="mb-2">
+                        <strong>Nom :</strong>
+                        {{ order.firstName }} {{ order.lastName }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>Email :</strong>
+                        {{ order.email }}
+                    </p>
+
+                    {% if order.phone %}
+                        <p class="mb-0">
+                            <strong>Téléphone :</strong>
+                            {{ order.phone }}
+                        </p>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {# =========================
+               ADRESSE DE LIVRAISON
+               ========================= #}
+
+            <div class="col-lg-6">
+
+                <div class="product-card p-4 h-100">
+
+                    <h2 class="h5 mb-4">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        Adresse de livraison
+                    </h2>
+
+                    <p class="mb-1">
+                        {{ order.firstName }} {{ order.lastName }}
+                    </p>
+
+                    <p class="mb-1">
+                        {{ order.address }}
+                    </p>
+
+                    <p class="mb-1">
+                        {{ order.postalCode }} {{ order.city }}
+                    </p>
+
+                    <p class="mb-0">
+                        {{ order.country }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {# =========================
+           INFORMATIONS COMMANDE
+           ========================= #}
+
+        <div class="product-card p-4 mt-4">
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <strong>Total :</strong><br>
+                    {{ order.total }} €
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Statut :</strong><br>
+                    {{ order.status }}
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Date :</strong><br>
+                    {{ order.createdAt|date('d/m/Y à H:i') }}
+                </div>
+
+            </div>
+
+        </div>
+
+        {# =========================
+           PRODUITS
+           ========================= #}
+
+        <div class="product-card p-4 mt-4">
+
+            <h2 class="h5 mb-4">
+                <i class="bi bi-bag me-2"></i>
+                Produits commandés
+            </h2>
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Prix unitaire</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in order.items %}
+
+                            <tr>
+                                <td>
+                                    {{ item.productName }}
+                                </td>
+
+                                <td>
+                                    {{ item.quantity }}
+                                </td>
+
+                                <td>
+                                    {{ item.price }} €
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        {# =========================
+           CHANGEMENT DE STATUT
+           ========================= #}
+
+        <div class="product-card p-4 mt-4">
+
+            <h2 class="h5 mb-4">
+                <i class="bi bi-arrow-repeat me-2"></i>
+                Changer le statut
+            </h2>
+
+            <form method="POST"
+                  action="{{ path('admin_orders_status', {id: order.id}) }}">
+
+                <div class="row align-items-end g-3">
+
+                    <div class="col-md-6">
+
+                        <label for="status" class="form-label">
+                            Statut
+                        </label>
+
+                        <select name="status"
+                                id="status"
+                                class="form-select">
+
+                            <option value="pending"
+                                {% if order.status == 'pending' %}selected{% endif %}>
+                                En attente
+                            </option>
+
+                            <option value="paid"
+                                {% if order.status == 'paid' %}selected{% endif %}>
+                                Payée
+                            </option>
+
+                            <option value="shipped"
+                                {% if order.status == 'shipped' %}selected{% endif %}>
+                                Expédiée
+                            </option>
+
+                            <option value="cancelled"
+                                {% if order.status == 'cancelled' %}selected{% endif %}>
+                                Annulée
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <button type="submit" class="btn-outline-gold">
+                            Mettre à jour
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}

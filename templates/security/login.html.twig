@@ -1,78 +1,200 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Connexion{% endblock %}
+{% block title %}Connexion — Vice & Délice{% endblock %}
 
 {% block body %}
 
-<div style="max-width:500px;margin:60px auto;padding:30px;border:1px solid #ddd;border-radius:10px;">
+<section class="py-5">
 
-    <h1 style="margin-bottom:20px;">Connexion</h1>
+    <div class="container">
 
-    {% if error %}
-        <div style="background:#e74c3c;color:white;padding:10px;border-radius:6px;margin-bottom:15px;">
-            {{ error.messageKey|trans(error.messageData, 'security') }}
+        <div class="row justify-content-center">
+
+            <div class="col-lg-5 col-md-8">
+
+                <div class="auth-card p-4 p-lg-5">
+
+                    {# ================= HEADER ================= #}
+                    <div class="text-center mb-4">
+
+                        <p class="hero-subtitle mb-2">
+                            Espace client
+                        </p>
+
+                        <h1 class="section-title mb-3">
+                            Connexion
+                        </h1>
+
+                        <p class="hero-description mb-0">
+                            Retrouvez votre espace personnel
+                            et vos commandes en toute discrétion.
+                        </p>
+
+                    </div>
+
+                    {# ================= ERROR ================= #}
+                    {% if error %}
+
+                        <div class="auth-alert mb-4">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+
+                    {% endif %}
+
+                    {# ================= USER CONNECTED ================= #}
+                    {% if app.user %}
+
+                        <div class="auth-success mb-4">
+
+                            Vous êtes connecté en tant que
+                            <strong>{{ app.user.userIdentifier }}</strong>
+
+                            <div class="mt-2">
+                                <a href="{{ path('app_logout') }}" class="auth-link">
+                                    Se déconnecter
+                                </a>
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                    {# ================= FORM ================= #}
+                    <form method="post">
+
+                        {# EMAIL #}
+                        <div class="mb-4">
+
+                            <label class="auth-label mb-2">
+                                Adresse email
+                            </label>
+
+                            <input
+                                type="email"
+                                name="email"
+                                value="{{ last_username }}"
+                                required
+                                autocomplete="email"
+                                class="auth-input"
+                                placeholder="Votre adresse email"
+                            >
+
+                        </div>
+
+                        {# PASSWORD #}
+                        <div class="mb-4">
+
+                            <label class="auth-label mb-2">
+                                Mot de passe
+                            </label>
+
+                            <div class="password-wrapper">
+
+                                <input
+                                    type="password"
+                                    name="password"
+                                    required
+                                    autocomplete="current-password"
+                                    class="auth-input"
+                                    placeholder="Votre mot de passe"
+                                >
+
+                                <button type="button"
+                                        class="password-toggle"
+                                        onclick="togglePassword(this)">
+                                    👁
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        {# CSRF #}
+                        <input
+                            type="hidden"
+                            name="_csrf_token"
+                            value="{{ csrf_token('authenticate') }}"
+                        >
+
+                        {# OPTIONS #}
+                        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+                            <label class="remember-me">
+                                <input type="checkbox" name="_remember_me">
+                                <span>Se souvenir de moi</span>
+                            </label>
+
+                            <a href="{{ path('app_forgot_password') }}" class="auth-link small">
+                                Mot de passe oublié ?
+                            </a>
+
+                        </div>
+
+                        {# BUTTON #}
+                        <button type="submit" class="btn-primary-custom w-100">
+                            Se connecter
+                        </button>
+
+                    </form>
+
+                    {# ================= EMAIL NON VERIFIE ================= #}
+                    {% if error and error.messageKey == 'ACCOUNT_NOT_VERIFIED' %}
+
+                        <div class="text-center mt-4">
+
+                            <p class="footer-text mb-2">
+                                Votre compte n’est pas encore activé
+                            </p>
+
+                            <a href="{{ path('app_resend_verification') }}"
+                               class="auth-link">
+                                Renvoyer l’email de confirmation
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+                    {# ================= SEPARATOR ================= #}
+                    <div class="auth-separator my-4"></div>
+
+                    {# ================= REGISTER ================= #}
+                    <div class="text-center">
+
+                        <p class="footer-text mb-3">
+                            Pas encore de compte ?
+                        </p>
+
+                        <a href="{{ path('app_register', {
+                            redirect: app.request.query.get('redirect')
+                        }) }}"
+                        class="btn-outline-gold">
+                            Créer un compte
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
-    {% endif %}
-
-    {% if app.user %}
-        <div style="margin-bottom:15px;">
-            Vous êtes connecté en tant que {{ app.user.userIdentifier }}.
-            <a href="{{ path('app_logout') }}">Se déconnecter</a>
-        </div>
-    {% endif %}
-
-    <form method="post">
-
-        <label>Email</label>
-        <input type="email"
-               name="email"
-               value="{{ last_username }}"
-               required
-               style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid #ccc;border-radius:6px;">
-
-        <label>Mot de passe</label>
-        <input type="password"
-               name="password"
-               required
-               style="width:100%;padding:10px;margin:5px 0 15px;border:1px solid #ccc;border-radius:6px;">
-
-        <input type="hidden"
-               name="_csrf_token"
-               value="{{ csrf_token('authenticate') }}">
-
-        <div style="margin-bottom:15px;">
-            <label>
-                <input type="checkbox" name="_remember_me">
-                Se souvenir de moi
-            </label>
-        </div>
-
-        <button type="submit"
-                style="width:100%;padding:12px;background:#6A1857;color:white;border:none;border-radius:6px;font-weight:bold;">
-            Se connecter
-        </button>
-
-    </form>
-
-    <hr style="margin:25px 0;">
-
-    <div style="text-align:center;">
-
-        <p>Pas encore de compte ?</p>
-
-        <a href="{{ path('app_register') }}"
-           style="display:inline-block;margin-top:10px;padding:10px 15px;background:#15848F;color:white;border-radius:6px;text-decoration:none;">
-            Créer un compte
-        </a>
-
-        {% if app.request.session.get('_security.main.target_path') %}
-            <p style="margin-top:10px;font-size:12px;color:#666;">
-                Vous serez redirigé après connexion
-            </p>
-        {% endif %}
 
     </div>
 
-</div>
+</section>
+
+{# ================= JS ================= #}
+{% block javascripts %}
+
+<script>
+function togglePassword(button) {
+    const input = button.parentElement.querySelector('input');
+
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
+
+{% endblock %}
 
 {% endblock %}

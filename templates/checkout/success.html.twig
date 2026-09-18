@@ -4,43 +4,133 @@
 
 {% block body %}
 
-<h1>Commande confirmée 🎉</h1>
+<div class="container py-5 checkout-success-page">
 
-<p>Merci pour votre commande.</p>
+    <div class="checkout-success-header">
 
-<h3>Commande #{{ order.id }}</h3>
+        <div class="checkout-success-icon">
+            ✓
+        </div>
 
-<p><strong>Statut :</strong> {{ order.status }}</p>
+        <p class="checkout-subtitle">Merci pour votre confiance</p>
 
-<p><strong>Total :</strong> {{ order.total }} €</p>
+        <h1 class="checkout-title">Commande confirmée 🎉</h1>
 
-<hr>
+        <p class="checkout-success-intro">
+            Votre commande a bien été enregistrée.
+            Retrouvez ci-dessous le récapitulatif de votre commande.
+        </p>
 
-<h3>Produits</h3>
+    </div>
 
-<ul>
-    {% for item in order.items %}
-        <li>
-            {{ item.productName }}
-            x{{ item.quantity }}
-            - {{ item.subtotal }} €
-        </li>
-    {% endfor %}
-</ul>
+    <div class="checkout-success-layout">
 
-<hr>
+        <div class="checkout-card">
 
-<h3>Livraison</h3>
+            <div class="checkout-card-header">
+                <div>
+                    <p class="checkout-order-label">Commande</p>
+                    <h2>#{{ order.id }}</h2>
+                </div>
 
-<p>
-    {{ order.firstName }} {{ order.lastName }}<br>
-    {{ order.address }}<br>
-    {{ order.postalCode }} {{ order.city }}<br>
-    {{ order.email }}
-</p>
+                {% set statusLabels = {
+                    'pending': 'En attente',
+                    'paid': 'Payée',
+                    'cancelled': 'Annulée',
+                    'failed': 'Échec du paiement'
+                } %}
 
-<a href="{{ path('product_index') }}">
-    Continuer mes achats
-</a>
+                {% set statusClasses = {
+                    'pending': 'status-pending',
+                    'paid': 'status-paid',
+                    'cancelled': 'status-cancelled',
+                    'failed': 'status-failed'
+                } %}
+
+                <span class="checkout-status {{ statusClasses[order.status]|default('status-pending') }}">
+                    {{ statusLabels[order.status]|default(order.status|capitalize) }}
+                </span>
+            </div>
+
+            <div class="checkout-divider"></div>
+
+            <h3 class="checkout-section-title">Votre commande</h3>
+
+            <div class="checkout-order-items">
+
+                {% for item in order.items %}
+
+                    <div class="checkout-order-item">
+
+                        <div class="checkout-order-item-info">
+                            <strong>{{ item.productName }}</strong>
+                            <span>Quantité : {{ item.quantity }}</span>
+                        </div>
+
+                        <strong>
+                            {{ item.subtotal|number_format(2, ',', ' ') }} €
+                        </strong>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <div class="checkout-divider"></div>
+
+            <div class="checkout-total checkout-success-total">
+                <span>Total</span>
+                <strong>
+                    {{ order.total|number_format(2, ',', ' ') }} €
+                </strong>
+            </div>
+
+        </div>
+
+
+        <aside class="checkout-summary">
+
+            <h2>Livraison</h2>
+
+            <div class="summary-divider"></div>
+
+            <div class="checkout-delivery">
+
+                <strong>
+                    {{ order.firstName }} {{ order.lastName }}
+                </strong>
+
+                <p>
+                    {{ order.address }}<br>
+                    {{ order.postalCode }} {{ order.city }}
+                </p>
+
+                <p class="checkout-delivery-email">
+                    {{ order.email }}
+                </p>
+
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <p class="checkout-summary-note">
+                Votre commande sera préparée avec soin.
+                Vous recevrez les informations nécessaires concernant son suivi.
+            </p>
+
+        </aside>
+
+    </div>
+
+    <div class="checkout-success-actions">
+
+        <a href="{{ path('product_index') }}" class="btn-primary-custom">
+            Continuer mes achats
+        </a>
+
+    </div>
+
+</div>
 
 {% endblock %}
