@@ -19,6 +19,7 @@ security:
 
             custom_authenticator: App\Security\LoginFormAuthenticator
             entry_point: App\Security\LoginFormAuthenticator
+            user_checker: App\Security\UserChecker
 
             logout:
                 path: app_logout
@@ -32,6 +33,7 @@ security:
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/checkout, roles: ROLE_USER }
+        - { path: ^/mes-commandes, roles: ROLE_USER }
         - { path: ^/cart, roles: PUBLIC_ACCESS }
         - { path: ^/cart/add, roles: PUBLIC_ACCESS }
 

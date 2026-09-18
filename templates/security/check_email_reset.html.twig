@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Email envoyé — Vice *&* Délice{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-5 col-md-8">
+
+                <div class="auth-card p-4 p-lg-5 text-center">
+
+                    <div class="checkout-success-icon mb-4">
+                        ✓
+                    </div>
+
+                    <p class="hero-subtitle mb-2">
+                        Espace client
+                    </p>
+
+                    <h1 class="section-title mb-3">
+                        Vérifiez votre email
+                    </h1>
+
+                    <p class="hero-description mb-4">
+                        Si un compte correspond à cette adresse email,
+                        vous allez recevoir un lien pour réinitialiser
+                        votre mot de passe.
+                    </p>
+
+                    <p class="footer-text mb-4">
+                        Pensez également à vérifier vos courriers indésirables.
+                        Le lien est valable pendant 1 heure.
+                    </p>
+
+                    <div class="auth-separator my-4"></div>
+
+                    <a href="{{ path('app_login') }}" class="auth-link">
+                        ← Retour à la connexion
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

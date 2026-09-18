@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <p class="hero-subtitle mb-2">
+                Vice & Délice
+            </p>
+
+            <h1 class="section-title mb-3">
+                Contact
+            </h1>
+
+            <p class="hero-description mx-auto" style="max-width: 700px;">
+                Une question concernant votre commande ou nos produits ?
+                Nous sommes à votre écoute.
+            </p>
+
+        </div>
+
+        {# Informations #}
+        <div class="product-card p-4 p-md-5 mb-4 mx-auto" style="max-width: 900px;">
+
+            <div class="text-center">
+
+                <div class="mb-3">
+                    <i class="bi bi-chat-dots fs-1 text-warning"></i>
+                </div>
+
+                <h2 class="h4 mb-3">
+                    Besoin d'aide ?
+                </h2>
+
+                <p class="mx-auto mb-4" style="max-width: 700px;">
+                    Une question sur votre commande, la livraison,
+                    un produit ou le fonctionnement de la boutique ?
+                    Utilisez simplement le formulaire ci-dessous
+                    et nous vous répondrons dans les meilleurs délais.
+                </p>
+
+            </div>
+
+            <div class="row g-3 justify-content-center">
+
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-box-seam text-warning me-3 mt-1"></i>
+                        <span>
+                            <strong>Une commande ?</strong><br>
+                            Pensez à indiquer votre numéro de commande.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-truck text-warning me-3 mt-1"></i>
+                        <span>
+                            <strong>Une question sur la livraison ?</strong><br>
+                            Nous sommes là pour vous renseigner.
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-shield-check text-warning me-3 mt-1"></i>
+                        <span>
+                            <strong>En toute discrétion</strong><br>
+                            Vos informations restent confidentielles.
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        {# Formulaire #}
+        <div class="product-card p-4 p-md-5 mx-auto" style="max-width: 900px;">
+
+            <h2 class="h4 text-center mb-4">
+                Envoyer un message
+            </h2>
+
+            {{ form_start(form, {
+                'attr': {
+                    'class': 'contact-form'
+                }
+            }) }}
+
+                <div class="contact-fields">
+
+                    <div class="contact-row">
+
+                        <div class="contact-field">
+                            {{ form_row(form.name) }}
+                        </div>
+
+                        <div class="contact-field">
+                            {{ form_row(form.email) }}
+                        </div>
+
+                    </div>
+
+                    <div class="contact-row">
+
+                        <div class="contact-field">
+                            {{ form_row(form.orderNumber) }}
+                        </div>
+
+                        <div class="contact-field">
+                            {{ form_row(form.subject) }}
+                        </div>
+
+                    </div>
+
+                    <div class="contact-message-field">
+                        {{ form_row(form.message) }}
+                    </div>
+
+                </div>
+
+                <div class="text-center mt-4">
+
+                    <button type="submit" class="btn-outline-gold">
+                        <i class="bi bi-send me-2"></i>
+                        Envoyer mon message
+                    </button>
+
+                </div>
+
+            {{ form_end(form) }}
+
+        </div>
+
+        <div class="text-center mt-4">
+
+            <p class="footer-text small mb-0">
+                Vos informations sont utilisées uniquement pour répondre
+                à votre demande.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

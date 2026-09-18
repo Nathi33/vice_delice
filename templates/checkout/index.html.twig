@@ -1,66 +1,211 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Validation commande{% endblock %}
+{% block title %}Validation de commande{% endblock %}
 
 {% block body %}
 
-<h1>Validation de commande</h1>
+<div class="container py-5 checkout-page">
 
-{% for message in app.flashes('error') %}
-    <div style="color:red;margin-bottom:10px;">
-        {{ message }}
-    </div>
-{% endfor %}
+    <div class="text-center mb-5">
+        <p class="checkout-subtitle">Dernière étape</p>
 
-<form method="POST" action="{{ path('checkout_validate') }}">
+        <h1 class="checkout-title">
+            Validation de commande
+        </h1>
 
-    <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
-
-    <div>
-        <label>Prénom</label><br>
-        <input type="text" name="firstName" required>
+        <p class="checkout-intro">
+            Vérifiez vos informations avant de confirmer votre commande.
+        </p>
     </div>
 
-    <div>
-        <label>Nom</label><br>
-        <input type="text" name="lastName" required>
+    {% for message in app.flashes('error') %}
+        <div class="checkout-alert">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <div class="checkout-layout">
+
+        {# FORMULAIRE #}
+        <div class="checkout-card">
+
+            <div class="checkout-card-header">
+                <h2>Vos informations</h2>
+
+                <p>
+                    Vos coordonnées sont préremplies à partir de votre compte.
+                    Vous pouvez les modifier si nécessaire.
+                </p>
+            </div>
+
+            <form method="POST" action="{{ path('checkout_validate') }}">
+
+                <input
+                    type="hidden"
+                    name="checkout_token"
+                    value="{{ checkout_token }}"
+                >
+
+                <div class="checkout-form-grid">
+
+                    <div class="checkout-field">
+                        <label for="firstName">Prénom</label>
+
+                        <input
+                            type="text"
+                            id="firstName"
+                            name="firstName"
+                            value="{{ app.user.firstName }}"
+                            required
+                            autocomplete="given-name"
+                        >
+                    </div>
+
+                    <div class="checkout-field">
+                        <label for="lastName">Nom</label>
+
+                        <input
+                            type="text"
+                            id="lastName"
+                            name="lastName"
+                            value="{{ app.user.lastName }}"
+                            required
+                            autocomplete="family-name"
+                        >
+                    </div>
+
+                    <div class="checkout-field checkout-field-full">
+                        <label for="email">Adresse email</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ app.user.email }}"
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+
+                    <div class="checkout-field checkout-field-full">
+                        <label for="phone">Téléphone</label>
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value="{{ app.user.phone }}"
+                            required
+                            autocomplete="tel"
+                        >
+                    </div>
+
+                    <div class="checkout-field checkout-field-full">
+                        <label for="address">Adresse de livraison</label>
+
+                        <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            required
+                            autocomplete="street-address"
+                        >
+                    </div>
+
+                    <div class="checkout-field">
+                        <label for="postalCode">Code postal</label>
+
+                        <input
+                            type="text"
+                            id="postalCode"
+                            name="postalCode"
+                            required
+                            autocomplete="postal-code"
+                        >
+                    </div>
+
+                    <div class="checkout-field">
+                        <label for="city">Ville</label>
+
+                        <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            required
+                            autocomplete="address-level2"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="checkout-divider"></div>
+
+                <label class="checkout-age">
+                    <input
+                        type="checkbox"
+                        name="adult"
+                        value="1"
+                        required
+                    >
+
+                    <span>
+                        Je certifie avoir plus de 18 ans.
+                    </span>
+                </label>
+
+                <button
+                    type="submit"
+                    class="btn-primary-custom checkout-submit"
+                >
+                    Confirmer la commande
+                </button>
+
+            </form>
+
+        </div>
+
+        {# RÉCAPITULATIF #}
+        <aside class="checkout-summary">
+
+            <h2>Votre commande</h2>
+
+            <div class="summary-divider"></div>
+
+            <div class="checkout-summary-line">
+                <span>Sous-total</span>
+
+                <strong>
+                    {{ cart_total|number_format(2, ',', ' ') }} €
+                </strong>
+            </div>
+
+            <div class="checkout-summary-line">
+                <span>Livraison</span>
+
+                <strong>
+                    0,00 €
+                </strong>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="checkout-total">
+                <span>Total</span>
+
+                <strong>
+                    {{ cart_total|number_format(2, ',', ' ') }} €
+                </strong>
+            </div>
+
+            <p class="checkout-summary-note">
+                Votre commande sera enregistrée après confirmation
+                de vos informations.
+            </p>
+
+        </aside>
+
     </div>
 
-    <div>
-        <label>Email</label><br>
-        <input type="email" name="email" required>
-    </div>
-
-    <div>
-        <label>Adresse</label><br>
-        <input type="text" name="address" required>
-    </div>
-
-    <div>
-        <label>Code postal</label><br>
-        <input type="text" name="postalCode" required>
-    </div>
-
-    <div>
-        <label>Ville</label><br>
-        <input type="text" name="city" required>
-    </div>
-
-    <hr>
-
-    <div>
-        <label>
-            <input type="checkbox" name="adult" value="1" required>
-            Je certifie avoir plus de 18 ans
-        </label>
-    </div>
-
-    <br>
-
-    <button type="submit">
-        Confirmer la commande
-    </button>
-
-</form>
+</div>
 
 {% endblock %}

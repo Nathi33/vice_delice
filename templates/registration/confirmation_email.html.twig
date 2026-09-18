@@ -1,11 +1,39 @@
-<h1>Hi! Please confirm your email!</h1>
+<!DOCTYPE html>
+<html>
+    <body style="font-family:Arial;background:#0f0b0d;color:#fff;padding:30px;">
 
-<p>
-    Please confirm your email address by clicking the following link: <br><br>
-    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
-    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
-</p>
+        <div style="max-width:600px;margin:auto;background:#1a1216;padding:30px;border-radius:12px;">
 
-<p>
-    Cheers!
-</p>
+            <h1 style="color:#c6a66b;margin-bottom:20px;">
+                Vice & Délice
+            </h1>
+
+            <p>Bonjour {{ user.firstName|default('') }},</p>
+
+            <p>
+                Merci pour votre inscription sur notre univers intime et premium.
+            </p>
+
+            <p>
+                Pour activer votre compte en toute sécurité, veuillez confirmer votre adresse email.
+            </p>
+
+            <div style="text-align:center;margin:30px 0;">
+
+                <a href="{{ signedUrl }}"
+                   style="background:#c6a66b;color:#000;padding:12px 20px;text-decoration:none;border-radius:6px;font-weight:bold;">
+                    Activer mon compte
+                </a>
+
+            </div>
+
+            <p style="font-size:12px;color:#aaa;">
+                🔐 Ce lien est temporaire pour des raisons de sécurité.<br>
+                🤍 Vos données restent strictement confidentielles.<br>
+                ❌ Si vous n’êtes pas à l’origine de cette inscription, ignorez ce message.
+            </p>
+
+        </div>
+
+    </body>
+</html>

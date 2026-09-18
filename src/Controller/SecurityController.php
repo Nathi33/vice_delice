@@ -11,22 +11,33 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route(path: '/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
+    public function login(
+        AuthenticationUtils $authenticationUtils,
+    ): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('product_index');
         }
 
+        // $referer = $request->headers->get('referer');
+
+        // if (
+        //     $referer &&
+        //     !str_contains($referer, '/login') &&
+        //     !str_contains($referer, '/register')
+        // ) {
+        //     $request->getSession()->set(
+        //         'after_login_redirect',
+        //         $referer
+        //     );
+        // }
+
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
-
-        // 🔥 méthode Symfony correcte (plus robuste)
-        $targetPath = $request->getSession()->get('_security.main.target_path');
 
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
-            'target_path' => $targetPath
         ]);
     }
 

@@ -18,7 +18,7 @@ class CheckoutController extends AbstractController
 {
     #[Route('/checkout', name: 'checkout_index')]
     #[IsGranted('ROLE_USER')]
-    public function index(CartService $cartService, Request $request): Response
+    public function index(CartService $cartService, ProductRepository $productRepository, Request $request): Response
     {
         $cart = $cartService->getCart();
 
@@ -33,8 +33,22 @@ class CheckoutController extends AbstractController
             );
         }
 
+        $total = 0;
+
+        foreach ($cart as $productId => $qty) {
+
+            $product = $productRepository->find($productId);
+
+            if (!$product) {
+                continue;
+            }
+
+            $total += (float) $product->getPrice() * $qty;
+        }
+
         return $this->render('checkout/index.html.twig', [
-            'checkout_token' => $request->getSession()->get('checkout_token')
+            'checkout_token' => $request->getSession()->get('checkout_token'),
+            'cart_total' => $total,
         ]);
     }
 
@@ -70,12 +84,13 @@ class CheckoutController extends AbstractController
         $firstName = trim($request->request->get('firstName'));
         $lastName  = trim($request->request->get('lastName'));
         $email     = trim($request->request->get('email'));
+        $phone     = trim($request->request->get('phone'));
         $address   = trim($request->request->get('address'));
         $postalCode = trim($request->request->get('postalCode'));
         $city      = trim($request->request->get('city'));
         $adult     = $request->request->get('adult');
 
-        if (!$firstName || !$lastName || !$email || !$address || !$postalCode || !$city) {
+        if (!$firstName || !$lastName || !$email || !$phone || !$address || !$postalCode || !$city) {
             $this->addFlash('error', 'Tous les champs sont obligatoires.');
             return $this->redirectToRoute('checkout_index');
         }
@@ -94,6 +109,7 @@ class CheckoutController extends AbstractController
         $order->setFirstName($firstName);
         $order->setLastName($lastName);
         $order->setEmail($email);
+        $order->setPhone($phone);
         $order->setAddress($address);
         $order->setPostalCode($postalCode);
         $order->setCity($city);
@@ -137,8 +153,14 @@ class CheckoutController extends AbstractController
 
     #[Route('/checkout/success/{id}', name: 'checkout_success')]
     #[IsGranted('ROLE_USER')]
-    public function success(Order $order): Response
-    {
+    public function success(
+        Order $order,
+        CartService $cartService
+    ): Response {
+        if ($order->getStatus() === 'paid') {
+            $cartService->clear();
+        }
+
         return $this->render('checkout/success.html.twig', [
             'order' => $order
         ]);

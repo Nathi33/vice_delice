@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveau message - Vice & Délice</title>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #f4f1f3; font-family: Arial, Helvetica, sans-serif; color: #2b2430;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f1f3; padding: 40px 20px;">
+    <tr>
+        <td align="center">
+
+```
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 650px; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+
+            <!-- En-tête -->
+            <tr>
+                <td style="background-color: #321f2d; padding: 30px 40px; text-align: center;">
+                    <div style="color: #d4af63; font-family: Georgia, serif; font-size: 24px; font-weight: normal;">
+                        Vice &amp; Délice
+                    </div>
+
+                    <div style="margin-top: 8px; color: rgba(255,255,255,0.75); font-size: 13px; letter-spacing: 0.5px;">
+                        Nouveau message depuis le formulaire de contact
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Contenu -->
+            <tr>
+                <td style="padding: 40px;">
+
+                    <h1 style="margin: 0 0 30px; color: #321f2d; font-family: Georgia, serif; font-size: 24px; font-weight: normal;">
+                        Nouveau message
+                    </h1>
+
+                    <!-- Informations -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px;">
+
+                        <tr>
+                            <td style="padding: 12px 0; border-bottom: 1px solid #eee8ec;">
+                                <span style="color: #8a7b86; font-size: 13px;">Nom</span><br>
+                                <strong style="color: #321f2d; font-size: 15px;">
+                                    {{ name }}
+                                </strong>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="padding: 12px 0; border-bottom: 1px solid #eee8ec;">
+                                <span style="color: #8a7b86; font-size: 13px;">E-mail</span><br>
+                                <strong style="color: #321f2d; font-size: 15px;">
+                                    {{ senderEmail }}
+                                </strong>
+                            </td>
+                        </tr>
+
+                        {% if orderNumber %}
+                            <tr>
+                                <td style="padding: 12px 0; border-bottom: 1px solid #eee8ec;">
+                                    <span style="color: #8a7b86; font-size: 13px;">Numéro de commande</span><br>
+                                    <strong style="color: #321f2d; font-size: 15px;">
+                                        {{ orderNumber }}
+                                    </strong>
+                                </td>
+                            </tr>
+                        {% endif %}
+
+                        <tr>
+                            <td style="padding: 12px 0;">
+                                <span style="color: #8a7b86; font-size: 13px;">Objet</span><br>
+                                <strong style="color: #321f2d; font-size: 15px;">
+                                    {{ subject }}
+                                </strong>
+                            </td>
+                        </tr>
+
+                    </table>
+
+                    <!-- Message -->
+                    <div style="border-left: 3px solid #d4af63; padding: 5px 0 5px 20px;">
+
+                        <div style="margin-bottom: 12px; color: #321f2d; font-family: Georgia, serif; font-size: 18px;">
+                            Message
+                        </div>
+
+                        <div style="color: #514851; font-size: 15px; line-height: 1.7; white-space: pre-line;">
+                            {{ message }}
+                        </div>
+
+                    </div>
+
+                </td>
+            </tr>
+
+            <!-- Pied de mail -->
+            <tr>
+                <td style="padding: 20px 40px; background-color: #faf8f9; border-top: 1px solid #eee8ec; text-align: center;">
+                    <p style="margin: 0; color: #9a8d96; font-size: 12px;">
+                        Message envoyé depuis le formulaire de contact de Vice &amp; Délice
+                    </p>
+                </td>
+            </tr>
+
+        </table>
+
+    </td>
+</tr>
+```
+
+</table>
+
+</body>
+</html>

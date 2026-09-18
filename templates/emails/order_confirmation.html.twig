@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Confirmation de votre commande</title>
+</head>
+
+<body style="margin:0; padding:0; background-color:#0f0b0d; font-family:Arial, Helvetica, sans-serif; color:#f7f1ec;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0f0b0d; padding:30px 15px;">
+    <tr>
+        <td align="center">
+
+            <table
+                width="600"
+                cellpadding="0"
+                cellspacing="0"
+                border="0"
+                style="width:100%; max-width:600px; background-color:#1a1216; border:1px solid #3a2930; border-radius:18px; overflow:hidden;"
+            >
+
+                {# HEADER #}
+                <tr>
+                    <td
+                        align="center"
+                        style="padding:32px 30px 28px; background-color:#1a1216; border-bottom:1px solid #3a2930;"
+                    >
+
+                        <div
+                            style="font-family:Georgia, 'Times New Roman', serif; font-size:30px; font-weight:bold; color:#c6a66b; letter-spacing:1px;"
+                        >
+                            Vice &amp; Délice
+                        </div>
+
+                        <div
+                            style="margin-top:8px; color:#d9cfc8; font-size:12px; letter-spacing:2px; text-transform:uppercase;"
+                        >
+                            Confirmation de commande
+                        </div>
+
+                    </td>
+                </tr>
+
+                {# INTRODUCTION #}
+                <tr>
+                    <td style="padding:35px 35px 20px;">
+
+                        <p
+                            style="margin:0 0 10px; color:#c6a66b; font-size:13px; font-weight:bold; letter-spacing:1px; text-transform:uppercase;"
+                        >
+                            Merci pour votre commande
+                        </p>
+
+                        <h1
+                            style="margin:0 0 18px; font-family:Georgia, 'Times New Roman', serif; font-size:28px; font-weight:normal; color:#f7f1ec;"
+                        >
+                            Votre commande est confirmée 🎉
+                        </h1>
+
+                        <p
+                            style="margin:0; color:#d9cfc8; font-size:15px; line-height:1.7;"
+                        >
+                            Bonjour {{ order.firstName }},<br><br>
+                            Nous vous confirmons la bonne réception de votre commande.
+                            Retrouvez ci-dessous le récapitulatif de vos achats.
+                        </p>
+
+                    </td>
+                </tr>
+
+                {# COMMANDE + STATUT #}
+                <tr>
+                    <td style="padding:10px 35px 25px;">
+
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+
+                                <td
+                                    style="padding:15px 18px; background-color:#24181d; border:1px solid #3a2930; border-radius:10px;"
+                                >
+                                    <span style="display:block; color:#9f918a; font-size:12px; margin-bottom:5px;">
+                                        Numéro de commande
+                                    </span>
+
+                                    <strong style="color:#f7f1ec; font-size:16px;">
+                                        #{{ order.id }}
+                                    </strong>
+                                </td>
+
+                                <td width="15"></td>
+
+                                <td
+                                    align="right"
+                                    style="padding:15px 18px; background-color:#24181d; border:1px solid #3a2930; border-radius:10px;"
+                                >
+                                    <span style="display:block; color:#9f918a; font-size:12px; margin-bottom:5px;">
+                                        Statut
+                                    </span>
+
+                                    <strong style="color:#8dcf9d; font-size:15px;">
+                                        Payée
+                                    </strong>
+                                </td>
+
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                {# PRODUITS #}
+                <tr>
+                    <td style="padding:10px 35px 25px;">
+
+                        <h2
+                            style="margin:0 0 15px; font-family:Georgia, 'Times New Roman', serif; font-size:20px; font-weight:normal; color:#f7f1ec;"
+                        >
+                            Votre commande
+                        </h2>
+
+                        <table
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="border-collapse:collapse;"
+                        >
+
+                            <tr>
+                                <th
+                                    align="left"
+                                    style="padding:12px 0; border-bottom:1px solid #3a2930; color:#9f918a; font-size:12px; font-weight:normal;"
+                                >
+                                    Produit
+                                </th>
+
+                                <th
+                                    align="center"
+                                    style="padding:12px 0; border-bottom:1px solid #3a2930; color:#9f918a; font-size:12px; font-weight:normal;"
+                                >
+                                    Qté
+                                </th>
+
+                                <th
+                                    align="right"
+                                    style="padding:12px 0; border-bottom:1px solid #3a2930; color:#9f918a; font-size:12px; font-weight:normal;"
+                                >
+                                    Total
+                                </th>
+                            </tr>
+
+                            {% for item in order.items %}
+
+                                <tr>
+
+                                    <td
+                                        style="padding:15px 0; border-bottom:1px solid #2d2025; color:#f7f1ec; font-size:14px; line-height:1.4;"
+                                    >
+                                        {{ item.productName }}
+                                    </td>
+
+                                    <td
+                                        align="center"
+                                        style="padding:15px 8px; border-bottom:1px solid #2d2025; color:#d9cfc8; font-size:14px;"
+                                    >
+                                        {{ item.quantity }}
+                                    </td>
+
+                                    <td
+                                        align="right"
+                                        style="padding:15px 0; border-bottom:1px solid #2d2025; color:#c6a66b; font-size:14px; white-space:nowrap;"
+                                    >
+                                        {{ item.subtotal|number_format(2, ',', ' ') }} €
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </table>
+
+                    </td>
+                </tr>
+
+                {# TOTAL #}
+                <tr>
+                    <td style="padding:5px 35px 30px;">
+
+                        <table
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="background-color:#24181d; border:1px solid #3a2930; border-radius:12px;"
+                        >
+                            <tr>
+
+                                <td
+                                    style="padding:18px 20px; color:#d9cfc8; font-size:15px;"
+                                >
+                                    Total de la commande
+                                </td>
+
+                                <td
+                                    align="right"
+                                    style="padding:18px 20px; color:#c6a66b; font-size:22px; font-weight:bold; white-space:nowrap;"
+                                >
+                                    {{ order.total|number_format(2, ',', ' ') }} €
+                                </td>
+
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                {# LIVRAISON #}
+                <tr>
+                    <td style="padding:5px 35px 30px;">
+
+                        <h2
+                            style="margin:0 0 15px; font-family:Georgia, 'Times New Roman', serif; font-size:20px; font-weight:normal; color:#f7f1ec;"
+                        >
+                            Livraison
+                        </h2>
+
+                        <table
+                            width="100%"
+                            cellpadding="0"
+                            cellspacing="0"
+                            border="0"
+                            style="background-color:#24181d; border:1px solid #3a2930; border-radius:12px;"
+                        >
+                            <tr>
+                                <td
+                                    style="padding:20px; color:#d9cfc8; font-size:14px; line-height:1.7;"
+                                >
+
+                                    <strong style="color:#f7f1ec;">
+                                        {{ order.firstName }} {{ order.lastName }}
+                                    </strong>
+
+                                    <br>
+
+                                    {{ order.address }}<br>
+                                    {{ order.postalCode }} {{ order.city }}<br>
+                                    {{ order.country }}
+
+                                    {% if order.phone %}
+                                        <br><br>
+                                        <span style="color:#9f918a;">
+                                            Téléphone :
+                                        </span>
+                                        {{ order.phone }}
+                                    {% endif %}
+
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+
+                {# MESSAGE FINAL #}
+                <tr>
+                    <td style="padding:5px 35px 35px;">
+
+                        <div
+                            style="height:1px; background-color:#3a2930; margin-bottom:25px;"
+                        ></div>
+
+                        <p
+                            style="margin:0; color:#d9cfc8; font-size:14px; line-height:1.7; text-align:center;"
+                        >
+                            Votre commande va maintenant être préparée avec soin.
+                            <br>
+                            Merci pour votre confiance et à très bientôt chez
+                            <strong style="color:#c6a66b;">
+                                Vice &amp; Délice
+                            </strong>.
+                        </p>
+
+                    </td>
+                </tr>
+
+                {# FOOTER #}
+                <tr>
+                    <td
+                        align="center"
+                        style="padding:22px 30px; background-color:#140d11; border-top:1px solid #3a2930;"
+                    >
+
+                        <p
+                            style="margin:0; color:#756a65; font-size:11px; line-height:1.6;"
+                        >
+                            Cet email vous est envoyé automatiquement suite à votre commande.
+                            <br>
+                            Merci de ne pas répondre directement à cet email.
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
+

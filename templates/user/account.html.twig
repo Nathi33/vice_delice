@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte — Vice & Délice{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <p class="hero-subtitle mb-2">
+                Espace client
+            </p>
+
+            <h1 class="section-title mb-3">
+                Mon compte
+            </h1>
+
+            <p class="hero-description account-description">
+                Bienvenue {{ user.firstName }}.
+                Retrouvez ici les informations et services liés à votre compte.
+            </p>
+
+        </div>
+
+
+        <div class="row justify-content-center g-4">
+
+            {# Informations personnelles #}
+
+            <div class="col-md-6 col-lg-4">
+                <div class="product-card p-4 h-100 d-flex flex-column">
+
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle fs-1"></i>
+                    </div>
+
+                    <h2 class="h5 text-center mb-3">
+                        Mes informations
+                    </h2>
+
+                    <div class="footer-text">
+                        <p class="mb-2">
+                            <strong>Nom :</strong>
+                            {{ user.firstName }} {{ user.lastName }}
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>Email :</strong>
+                            {{ user.email }}
+                        </p>
+
+                        {% if user.phone %}
+                            <p class="mb-0">
+                                <strong>Téléphone :</strong>
+                                {{ user.phone }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-center mt-auto pt-4">
+                        <a href="{{ path('app_edit_profile') }}"
+                        class="btn-outline-gold">
+                            <i class="bi bi-pencil me-2"></i>
+                            Modifier mes informations
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+
+            {# Mes commandes #}
+
+            <div class="col-md-6 col-lg-4">
+
+                <div class="product-card p-4 h-100 d-flex flex-column">
+
+                    <div class="text-center mb-4">
+                        <i class="bi bi-bag-check fs-1"></i>
+                    </div>
+
+                    <h2 class="h5 text-center mb-3">
+                        Mes commandes
+                    </h2>
+
+                    <p class="footer-text text-center mb-4">
+                        Retrouvez l'historique de vos commandes
+                        et commandez à nouveau vos produits.
+                    </p>
+
+                    <div class="text-center mt-auto">
+
+                        <a href="{{ path('app_orders') }}"
+                           class="btn-outline-gold">
+                            Voir mes commandes
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# Sécurité #}
+
+            <div class="col-md-6 col-lg-4">
+
+                <div class="product-card p-4 h-100 d-flex flex-column">
+
+                    <div class="text-center mb-4">
+                        <i class="bi bi-shield-lock fs-1"></i>
+                    </div>
+
+                    <h2 class="h5 text-center mb-3">
+                        Sécurité
+                    </h2>
+
+                    <p class="footer-text text-center mb-4">
+                        Gérez votre mot de passe et la sécurité
+                        de votre compte.
+                    </p>
+
+                    <div class="text-center mt-auto">
+                        <a href="{{ path('app_change_password') }}"
+                        class="btn-outline-gold">
+                            <i class="bi bi-key me-2"></i>
+                            Modifier mon mot de passe
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

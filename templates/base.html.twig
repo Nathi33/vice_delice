@@ -25,7 +25,7 @@
 <body class="site-body">
 
 {# ========================= NAVBAR ========================= #}
-<nav class="navbar navbar-expand-lg site-navbar px-3">
+<nav class="navbar navbar-expand-lg site-navbar fixed-top px-3">
 
     <a class="navbar-brand d-flex align-items-center gap-2" href="{{ path('app_home') }}">
         <img src="{{ asset('images/logo.webp') }}" class="site-logo" alt="Vice & Délice">
@@ -48,20 +48,35 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="{{ path('product_new') }}">Nouveautés</a>
-            </li>
-
-            <li class="nav-item">
-                <a class="btn btn-cart" href="/cart">
-                    Panier (<span id="cart-count">0</span>)
+                <a class="nav-link" href="{{ path('product_new', { sort: 'newest' }) }}">
+                    Nouveautés
                 </a>
             </li>
 
+            {# ========================= AUTH ========================= #}
             {% if app.user %}
 
+                {# MON COMPTE #}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-outline-light d-flex align-items-center gap-2"
-                    href="{{ path('app_logout') }}">
+                    <a class="nav-link d-flex align-items-center gap-1" href="{{ path('app_account') }}">
+                        <i class="bi bi-person-circle"></i>
+                        Mon compte
+                    </a>
+                </li>
+
+                {# ADMIN (optionnel) #}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link text-warning d-flex align-items-center gap-1" href="#">
+                            <i class="bi bi-speedometer2"></i>
+                            Admin
+                        </a>
+                    </li>
+                {% endif %}
+
+                {# LOGOUT #}
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center gap-1" href="{{ path('app_logout') }}">
                         <i class="bi bi-box-arrow-right"></i>
                         Déconnexion
                     </a>
@@ -69,15 +84,23 @@
 
             {% else %}
 
+                {# LOGIN #}
                 <li class="nav-item">
-                    <a class="nav-link btn btn-primary-custom d-flex align-items-center gap-2"
-                    href="{{ path('app_login') }}">
+                    <a class="nav-link d-flex align-items-center gap-1" href="{{ path('app_login') }}">
                         <i class="bi bi-person"></i>
                         Connexion
                     </a>
                 </li>
 
             {% endif %}
+
+            {# ========================= PANIER ========================= #}
+            <li class="nav-item">
+                <a class="btn btn-cart" href="/cart">
+                    <i class="bi bi-bag"></i>
+                    Panier (<span id="cart-count">0</span>)
+                </a>
+            </li>
 
         </ul>
     </div>
@@ -86,51 +109,223 @@
 
 {# ========================= CONTENU ========================= #}
 <main>
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-success text-center flash-message">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
     {% block body %}{% endblock %}
 </main>
 
 {# ========================= FOOTER ========================= #}
-<footer class="site-footer mt-5 py-5">
+
+<footer class="site-footer">
 
     <div class="container">
 
-        <div class="row g-4">
+        <div class="footer-main">
 
-            <div class="col-md-4">
-                <h5 class="footer-subtitle">Vice & Délice</h5>
+            {# IDENTITÉ #}
+            <div class="footer-brand">
+
+                <img
+                    src="{{ asset('images/logo.webp') }}"
+                    alt="Vice & Délice"
+                    class="footer-logo"
+                >
+
                 <p class="footer-text">
                     Boutique intime et élégante dédiée aux plaisirs sensuels,
                     dans un univers raffiné et discret.
                 </p>
+
             </div>
 
-            <div class="col-md-4">
-                <h5 class="footer-subtitle">Navigation</h5>
+
+            {# NAVIGATION #}
+            <div class="footer-column footer-discover">
+
+                <h5 class="footer-subtitle">
+                    Découvrir
+                </h5>
+
                 <ul class="footer-links list-unstyled">
-                    <li><a href="{{ path('app_home') }}">Accueil</a></li>
-                    <li><a href="{{ path('product_index') }}">Boutique</a></li>
-                    <li><a href="/cart">Panier</a></li>
+
+                    <li>
+                        <a href="{{ path('app_home') }}">
+                            Accueil
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ path('product_index') }}">
+                            Boutique
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="{{ path('product_new', { sort: 'newest' }) }}">
+                            Nouveautés
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/cart">
+                            Panier
+                        </a>
+                    </li>
+
                 </ul>
+
             </div>
 
-            <div class="col-md-4">
-                <h5 class="footer-subtitle">Informations</h5>
+
+            {# INFORMATIONS #}
+            <div class="footer-column footer-information">
+
+                <h5 class="footer-subtitle">
+                    Informations
+                </h5>
+
                 <ul class="footer-links list-unstyled">
-                    <li><a href="#">Livraison</a></li>
-                    <li><a href="#">Confidentialité</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li>
+                        <a href="{{ path('app_shipping') }}">
+                            Livraison
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_faq') }}">
+                            FAQ
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_contact') }}">
+                            Contact
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_legal') }}">
+                            Mentions légales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_cgv') }}">
+                            CGV
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_privacy') }}">
+                            Confidentialité
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('app_cookies') }}">
+                            Cookies
+                        </a>
+                    </li>
                 </ul>
+
+            </div>
+
+
+            {# CONFIANCE / DISCRÉTION #}
+            <div class="footer-column footer-reassurance">
+
+                <h5 class="footer-subtitle">
+                    Votre tranquillité
+                </h5>
+
+                <p>
+                    <i class="bi bi-shield-check"></i>
+                    Paiement sécurisé
+                </p>
+
+                <p>
+                    <i class="bi bi-box-seam"></i>
+                    Expédition discrète
+                </p>
+
+                <p>
+                    <i class="bi bi-lock"></i>
+                    Vos données protégées
+                </p>
+
             </div>
 
         </div>
 
-        <div class="text-center mt-4 footer-text">
-            © {{ "now"|date("Y") }} Vice & Délice — Tous droits réservés
+
+        {# LIGNE DE SÉPARATION #}
+        <div class="footer-bottom">
+
+            <p>
+                © {{ "now"|date("Y") }} Vice & Délice
+                <span>—</span>
+                Tous droits réservés
+            </p>
+
         </div>
 
     </div>
 
 </footer>
+
+{# =========================
+   BARRE D'ÂGE
+   ========================= #}
+
+<div
+    id="age-gate"
+    class="age-gate"
+    aria-hidden="true"
+>
+    <div class="age-gate-content">
+
+        <div class="age-gate-logo">
+            Vice &amp; Délice
+        </div>
+
+        <div class="age-gate-separator"></div>
+
+        <h2>Bienvenue chez Vice &amp; Délice</h2>
+
+        <p class="age-gate-intro">
+            Ce site propose des produits réservés à un public majeur.
+        </p>
+
+        <p class="age-gate-question">
+            Vous devez avoir <strong>18 ans ou plus</strong> pour accéder à ce site.
+        </p>
+
+        <div class="age-gate-actions">
+
+            <button
+                type="button"
+                id="age-gate-enter"
+                class="btn-outline-gold"
+            >
+                J'ai 18 ans ou plus
+            </button>
+
+            <button
+                type="button"
+                id="age-gate-leave"
+                class="age-gate-leave"
+            >
+                Quitter le site
+            </button>
+
+        </div>
+
+        <p class="age-gate-notice">
+            En entrant sur ce site, vous confirmez être majeur.
+        </p>
+
+    </div>
+</div>
 
 {# ========================= SCRIPTS ========================= #}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -166,6 +361,53 @@ function showLuxuryToast(message = 'Produit ajouté au panier') {
         toast.classList.remove('show');
     }, 2200);
 }
+
+setTimeout(() => {
+    document.querySelectorAll('.flash-message').forEach(el => {
+        el.style.transition = 'opacity 0.5s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 500);
+    });
+}, 6000);
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const ageGate = document.getElementById('age-gate');
+    const enterButton = document.getElementById('age-gate-enter');
+    const leaveButton = document.getElementById('age-gate-leave');
+
+    if (!ageGate) {
+        return;
+    }
+
+    const ageVerified = localStorage.getItem('vice_delice_age_verified');
+
+    if (ageVerified === 'true') {
+        ageGate.remove();
+        return;
+    }
+
+    ageGate.setAttribute('aria-hidden', 'false');
+
+    document.body.classList.add('age-gate-open');
+
+    enterButton.addEventListener('click', function () {
+        localStorage.setItem('vice_delice_age_verified', 'true');
+
+        ageGate.classList.add('is-closing');
+
+        setTimeout(function () {
+            ageGate.remove();
+            document.body.classList.remove('age-gate-open');
+        }, 300);
+    });
+
+    leaveButton.addEventListener('click', function () {
+        window.location.href = 'https://www.google.com/';
+    });
+
+});
+
 </script>
 
 {% block javascripts %}{% endblock %}

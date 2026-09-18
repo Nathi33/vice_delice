@@ -1,0 +1,238 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes commandes — Vice & Délice{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+<div class="container">
+
+    <div class="mb-4">
+        <a href="{{ path('app_account') }}" class="account-back-link">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour à mon compte
+        </a>
+    </div>
+
+    <div class="text-center mb-5">
+
+        <p class="hero-subtitle mb-2">
+            Espace client
+        </p>
+
+        <h1 class="section-title mb-3">
+            Mes commandes
+        </h1>
+
+        <p class="hero-description">
+            Retrouvez l’historique de vos commandes.
+        </p>
+
+    </div>
+
+    {% if orders is empty %}
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-6">
+
+                <div class="auth-card p-5 text-center">
+
+                    <i class="bi bi-bag-x fs-1 mb-4"></i>
+
+                    <h2 class="section-title mb-3">
+                        Aucune commande
+                    </h2>
+
+                    <p class="footer-text mb-4">
+                        Vous n’avez pas encore passé de commande.
+                    </p>
+
+                    <a href="{{ path('product_index') }}"
+                       class="btn-primary-custom">
+                        Découvrir la boutique
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-10">
+
+                {% for order in orders %}
+
+                    <div class="product-card p-4 mb-4">
+
+                        {# =========================
+                           EN-TÊTE DE LA COMMANDE
+                           ========================= #}
+
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                            <div>
+
+                                <p class="hero-subtitle mb-1">
+                                    Commande #{{ order.id }}
+                                </p>
+
+                                <p class="footer-text mb-0">
+                                    {{ order.createdAt|date('d/m/Y à H:i') }}
+                                </p>
+
+                            </div>
+
+                            <div class="text-end">
+
+                                <p class="mb-1">
+                                    <strong>
+                                        {{ order.total|number_format(2, ',', ' ') }} €
+                                    </strong>
+                                </p>
+
+                                {% set statusLabels = {
+                                    'pending': 'En attente',
+                                    'paid': 'Payée',
+                                    'cancelled': 'Annulée',
+                                    'failed': 'Échec du paiement'
+                                } %}
+
+                                {% set statusClasses = {
+                                    'pending': 'status-pending',
+                                    'paid': 'status-paid',
+                                    'cancelled': 'status-cancelled',
+                                    'failed': 'status-failed'
+                                } %}
+
+                                <span class="badge {{ statusClasses[order.status]|default('status-pending') }}">
+                                    {{ statusLabels[order.status]|default(order.status) }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        {# =========================
+                           DÉTAIL DES PRODUITS
+                           ========================= #}
+
+                        <div class="mt-4 pt-4 border-top">
+
+                        <h3 class="h6 mb-3">
+                            Détail de la commande
+                        </h3>
+
+                        {% for item in order.items %}
+
+                            {% set mainImage = null %}
+
+                            {% if item.product %}
+                                {% for image in item.product.productImages %}
+                                    {% if image.isMain %}
+                                        {% set mainImage = image %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+
+                            <div class="d-flex align-items-center py-3 border-bottom">
+
+                                {# Miniature #}
+
+                                <div class="flex-shrink-0 me-3">
+
+                                    {% if mainImage %}
+                                        <img
+                                            src="{{ mainImage.url }}"
+                                            alt="{{ item.productName }}"
+                                            style="width: 70px; height: 70px; object-fit: contain; border-radius: 8px;"
+                                        >
+                                    {% else %}
+                                        <div
+                                            class="d-flex align-items-center justify-content-center"
+                                            style="width: 70px; height: 70px; border-radius: 8px; background: var(--site-surface-light);"
+                                        >
+                                            <i class="bi bi-image fs-4"></i>
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+
+                                {# Informations produit #}
+
+                                <div class="flex-grow-1 me-3">
+
+                                    <div class="fw-semibold">
+                                        {{ item.productName }}
+                                    </div>
+
+                                    {% if item.variantSku %}
+                                        <small class="footer-text">
+                                            Référence : {{ item.variantSku }}
+                                        </small>
+                                    {% endif %}
+
+                                    <div class="footer-text small mt-1">
+                                        Quantité : {{ item.quantity }}
+                                    </div>
+
+                                </div>
+
+                                {# Prix #}
+
+                                <div class="text-end flex-shrink-0">
+
+                                    <div class="footer-text small">
+                                        {{ item.price|number_format(2, ',', ' ') }} €
+                                        × {{ item.quantity }}
+                                    </div>
+
+                                    <strong>
+                                        {{ item.subtotal|number_format(2, ',', ' ') }} €
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                        </div>
+
+                        {# =========================
+                           BOUTON COMMANDER À NOUVEAU
+                           ========================= #}
+
+                        <div class="mt-4 pt-3 border-top text-end">
+
+                            <a
+                                href="{{ path('order_reorder', { id: order.id }) }}"
+                                class="btn-outline-gold"
+                            >
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Commander à nouveau
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+</div>
+
+</section>
+
+{% endblock %}

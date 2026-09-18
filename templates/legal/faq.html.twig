@@ -1,0 +1,391 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}FAQ{% endblock %}
+
+{% block body %}
+
+<section class="py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+
+            <p class="hero-subtitle mb-2">
+                Vice & Délice
+            </p>
+
+            <h1 class="section-title mb-3">
+                Questions fréquentes
+            </h1>
+
+            <p class="hero-description mx-auto" style="max-width: 700px;">
+                Retrouvez ici les réponses aux questions les plus
+                fréquemment posées concernant vos commandes.
+            </p>
+
+        </div>
+
+
+        <div class="accordion faq-accordion" id="faqAccordion">
+
+
+            {# COMMANDE #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingCommande">
+
+                    <button
+                        class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseCommande"
+                        aria-expanded="true"
+                        aria-controls="collapseCommande"
+                    >
+                        <i class="bi bi-bag me-3"></i>
+                        Comment passer une commande ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseCommande"
+                    class="accordion-collapse collapse show"
+                    aria-labelledby="headingCommande"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Pour passer une commande, sélectionnez les produits
+                        qui vous intéressent et ajoutez-les à votre panier.
+                        Une fois votre sélection terminée, rendez-vous dans
+                        votre panier afin de vérifier votre commande puis
+                        suivez les différentes étapes de validation.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# PAIEMENT #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingPaiement">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapsePaiement"
+                        aria-expanded="false"
+                        aria-controls="collapsePaiement"
+                    >
+                        <i class="bi bi-credit-card me-3"></i>
+                        Quels sont les moyens de paiement proposés ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapsePaiement"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingPaiement"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Les moyens de paiement disponibles seront précisés
+                        lors de la finalisation des conditions commerciales
+                        de la boutique.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# LIVRAISON #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingLivraison">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseLivraison"
+                        aria-expanded="false"
+                        aria-controls="collapseLivraison"
+                    >
+                        <i class="bi bi-truck me-3"></i>
+                        Comment ma commande est-elle expédiée ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseLivraison"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingLivraison"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Les modalités d'expédition, les transporteurs
+                        proposés et les zones desservies seront précisés
+                        dans la page Livraison.
+
+                        <div class="mt-3">
+
+                            <a href="{{ path('app_shipping') }}"
+                               class="btn-outline-gold">
+                                Consulter les informations de livraison
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# DISCRÉTION #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingDiscretion">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseDiscretion"
+                        aria-expanded="false"
+                        aria-controls="collapseDiscretion"
+                    >
+                        <i class="bi bi-shield-check me-3"></i>
+                        Les colis sont-ils expédiés discrètement ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseDiscretion"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingDiscretion"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        La discrétion fait partie des engagements mis en
+                        avant par Vice & Délice. Les commandes sont préparées
+                        dans un emballage discret, sans indication permettant
+                        d'identifier la nature des produits commandés.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# SUIVI #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingSuivi">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseSuivi"
+                        aria-expanded="false"
+                        aria-controls="collapseSuivi"
+                    >
+                        <i class="bi bi-geo-alt me-3"></i>
+                        Comment suivre ma commande ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseSuivi"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingSuivi"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Lorsque le suivi sera disponible, les informations
+                        nécessaires vous seront communiquées afin de suivre
+                        l'acheminement de votre colis.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# MODIFICATION / ANNULATION #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingModification">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseModification"
+                        aria-expanded="false"
+                        aria-controls="collapseModification"
+                    >
+                        <i class="bi bi-pencil-square me-3"></i>
+                        Puis-je modifier ou annuler ma commande ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseModification"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingModification"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Les possibilités de modification ou d'annulation
+                        d'une commande dépendent notamment de son état
+                        d'avancement.
+
+                        <br><br>
+
+                        Pour connaître les modalités applicables à votre
+                        commande, nous vous invitons à contacter la boutique
+                        dans les meilleurs délais.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# RÉTRACTATION #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingRetractation">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseRetractation"
+                        aria-expanded="false"
+                        aria-controls="collapseRetractation"
+                    >
+                        <i class="bi bi-arrow-counterclockwise me-3"></i>
+                        Comment exercer mon droit de rétractation ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseRetractation"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingRetractation"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Les modalités relatives au droit de rétractation,
+                        aux retours et aux éventuelles exclusions seront
+                        précisées dans les conditions générales de vente
+                        de la boutique.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {# CONTACT #}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header" id="headingContact">
+
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseContact"
+                        aria-expanded="false"
+                        aria-controls="collapseContact"
+                    >
+                        <i class="bi bi-chat-dots me-3"></i>
+                        Comment contacter Vice & Délice ?
+                    </button>
+
+                </h2>
+
+                <div
+                    id="collapseContact"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="headingContact"
+                    data-bs-parent="#faqAccordion"
+                >
+
+                    <div class="accordion-body">
+
+                        Pour toute question concernant votre commande,
+                        la livraison ou les produits proposés, vous pourrez
+                        contacter directement la boutique.
+
+                        <div class="mt-3">
+
+                            <a href="{{ path('app_contact') }}"
+                               class="btn-outline-gold">
+                                Nous contacter
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="text-center mt-5">
+
+            <p class="footer-text mb-3">
+                Vous ne trouvez pas la réponse à votre question ?
+            </p>
+
+            <a href="{{ path('app_contact') }}" class="btn-outline-gold">
+                Contactez-nous
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
