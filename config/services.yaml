@@ -2,6 +2,19 @@ parameters:
     stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
     uploads_directory: '%kernel.project_dir%/public/uploads'
 
+    # Informations du vendeur pour les factures
+    invoice_seller:
+        trade_name: 'Vice & Délice'
+        legal_name: ''
+        address: ''
+        postal_code: ''
+        city: ''
+        country: 'France'
+        siret: ''
+        vat_status: 'unknown'
+        vat_number: ''
+
+
 services:
     _defaults:
         autowire: true
@@ -13,3 +26,11 @@ services:
     App\Service\StripeService:
         arguments:
             $stripeSecretKey: '%stripe_secret_key%'
+
+    App\Service\InvoiceGenerator:
+        arguments:
+            $invoiceSeller: '%invoice_seller%'
+
+    App\Service\InvoiceArchiveService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

@@ -1,87 +1,855 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Catégories{% endblock %}
+{% block title %}Gestion des catégories{% endblock %}
 
 {% block body %}
 
-<h1>Gestion des catégories</h1>
+<div class="admin-dashboard">
 
-<table class="table">
+{# =========================
+   EN-TÊTE
+   ========================= #}
 
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Référence externe</th>
-            <th>Nom</th>
-            <th>Slug</th>
-            <th>Description</th>
-            <th>Image</th>
-            <th>Statut</th>
-            <th>Date de création</th>
-            <th>Dernière modification</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
+    <div class="admin-page-header admin-product-page-header">
 
-    <tbody>
+        <div class="admin-product-back">
+            <a href="{{ path('admin_dashboard') }}" class="account-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour au Tableau de Bord
+            </a>
+        </div>
 
-        {% for category in categories %}
+        <div class="admin-product-title">
+            <p class="admin-eyebrow">
+                Catalogue
+            </p>
 
-            <tr>
-                <td>{{ category.id }}</td>
-                <td>{{ category.externalReference }}</td>
-                <td>{{ category.name }}</td>
-                <td>{{ category.slug }}</td>
-                <td>
-                    {{ category.description ? category.description : '-' }}
-                </td>
-                <td>
-                    {% if category.image %}
-                        <img src="{{ category.image }}" alt="{{ category.name }}" width="50">
-                    {% else %}
-                        -
+            <h1>
+                Gestion des catégories
+            </h1>
+
+            <p>
+                Organisez et retrouvez facilement vos catégories.
+            </p>
+        </div>
+
+        <div class="admin-product-create">
+            <a href="{{ path('admin_category_new') }}"
+            class="admin-primary-action">
+
+                <i class="bi bi-plus-lg"></i>
+                Nouvelle catégorie
+
+            </a>
+        </div>
+
+    </div>
+
+    <section class="admin-section">
+
+        <div class="admin-section-header">
+            <div>
+                <h2>Liste des catégories</h2>
+                <p>{{ totalCategories }} résultat(s)</p>
+            </div>
+        </div>
+
+        {# Recherche et filtres #}
+        <form method="get"
+              action="{{ path('admin_category_index') }}"
+              class="admin-category-filters">
+
+            {# Recherche intuitive #}
+            <div class="admin-category-filter-field admin-category-search-field">
+                <label for="search">Recherche</label>
+
+                <div
+                    class="admin-category-search-wrapper"
+                    data-autocomplete-url="{{ path('admin_category_autocomplete') }}"
+                >
+                    <input
+                        type="search"
+                        id="search"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="Nom ou référence externe..."
+                        autocomplete="off"
+                        aria-autocomplete="list"
+                        aria-controls="admin-category-suggestions"
+                        aria-expanded="false"
+                    >
+
+                    <div
+                        id="admin-category-suggestions"
+                        class="admin-category-suggestions"
+                        role="listbox"
+                        hidden
+                    ></div>
+                </div>
+            </div>
+
+            {# Catégorie parente #}
+            <div class="admin-category-filter-field">
+                <label id="parent-label">Catégorie parente</label>
+
+                {% set selectedParentName = 'Toutes les catégories' %}
+
+                {% for parentCategory in parentCategories %}
+                    {% if selectedParent == parentCategory.id %}
+                        {% set selectedParentName = parentCategory.name %}
                     {% endif %}
-                </td>
-                <td>
-                    {% if category.isActive %}
-                        Actif
-                    {% else %}
-                        Inactif
+                {% endfor %}
+
+                <div class="admin-category-select" id="parent-select">
+                    <input
+                        type="hidden"
+                        name="parent"
+                        value="{{ selectedParent|default(0) }}"
+                    >
+
+                    <button
+                        type="button"
+                        class="admin-category-select-trigger"
+                        aria-labelledby="parent-label"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+                        <span class="admin-category-select-value">
+                            {{ selectedParentName }}
+                        </span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+
+                    <div
+                        class="admin-category-select-options"
+                        role="listbox"
+                        hidden
+                    >
+                        <button
+                            type="button"
+                            class="admin-category-select-option"
+                            role="option"
+                            data-value="0"
+                            aria-selected="{{ selectedParent|default(0) == 0 ? 'true' : 'false' }}"
+                        >
+                            Toutes les catégories
+                        </button>
+
+                        {% for parentCategory in parentCategories %}
+                            <button
+                                type="button"
+                                class="admin-category-select-option"
+                                role="option"
+                                data-value="{{ parentCategory.id }}"
+                                aria-selected="{{ selectedParent == parentCategory.id ? 'true' : 'false' }}"
+                            >
+                                {{ parentCategory.name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Statut #}
+            <div class="admin-category-filter-field">
+                <label id="status-label">Statut</label>
+
+                {% set statusOptions = [
+                    {value: '', label: 'Tous les statuts'},
+                    {value: 'active', label: 'Actives'},
+                    {value: 'inactive', label: 'Inactives'}
+                ] %}
+
+                {% set currentStatus = selectedStatus|default('') %}
+                {% set statusLabel = 'Tous les statuts' %}
+
+                {% for option in statusOptions %}
+                    {% if currentStatus == option.value %}
+                        {% set statusLabel = option.label %}
                     {% endif %}
-                </td>
-                <td>
-                    {{ category.createdAt ? category.createdAt|date('d/m/Y H:i') : '' }}
-                </td>
-                <td>
-                    {{ category.updatedAt ? category.updatedAt|date('d/m/Y H:i') : '' }}
-                </td>
-                <td>
-                    <a href="{{ path('admin_category_show', {'id': category.id}) }}">
-                        Voir
-                    </a>
-                    |
-                    <a href="{{ path('admin_category_edit', {'id': category.id}) }}">
-                        Modifier
-                    </a>
-                </td>
-            </tr>
+                {% endfor %}
 
-        {% else %}
+                <div class="admin-category-select">
+                    <input
+                        type="hidden"
+                        name="status"
+                        value="{{ currentStatus }}"
+                    >
 
-            <tr>
-                <td colspan="10">
-                    Aucune catégorie trouvée
-                </td>
-            </tr>
+                    <button
+                        type="button"
+                        class="admin-category-select-trigger"
+                        aria-labelledby="status-label"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+                        <span class="admin-category-select-value">
+                            {{ statusLabel }}
+                        </span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
 
-        {% endfor %}
+                    <div
+                        class="admin-category-select-options"
+                        role="listbox"
+                        hidden
+                    >
+                        {% for option in statusOptions %}
+                            <button
+                                type="button"
+                                class="admin-category-select-option"
+                                role="option"
+                                data-value="{{ option.value }}"
+                                aria-selected="{{ currentStatus == option.value ? 'true' : 'false' }}"
+                            >
+                                {{ option.label }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
-    </tbody>
+            {# Trier par #}
+            <div class="admin-category-filter-field">
+                <label id="sort-label">Trier par</label>
 
-</table>
+                {% set sortOptions = [
+                    {value: 'name', label: 'Nom'},
+                    {value: 'id', label: 'ID'},
+                    {value: 'externalReference', label: 'Référence'},
+                    {value: 'createdAt', label: 'Date de création'},
+                    {value: 'isActive', label: 'Statut'}
+                ] %}
 
-<a href="{{ path('admin_category_new') }}">
-    Créer une catégorie
-</a>
+                {% set currentSort = selectedSort|default('name') %}
+                {% set sortLabel = 'Nom' %}
 
+                {% for option in sortOptions %}
+                    {% if currentSort == option.value %}
+                        {% set sortLabel = option.label %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="admin-category-select">
+                    <input
+                        type="hidden"
+                        name="sort"
+                        value="{{ currentSort }}"
+                    >
+
+                    <button
+                        type="button"
+                        class="admin-category-select-trigger"
+                        aria-labelledby="sort-label"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+                        <span class="admin-category-select-value">
+                            {{ sortLabel }}
+                        </span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+
+                    <div
+                        class="admin-category-select-options"
+                        role="listbox"
+                        hidden
+                    >
+                        {% for option in sortOptions %}
+                            <button
+                                type="button"
+                                class="admin-category-select-option"
+                                role="option"
+                                data-value="{{ option.value }}"
+                                aria-selected="{{ currentSort == option.value ? 'true' : 'false' }}"
+                            >
+                                {{ option.label }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Ordre #}
+            <div class="admin-category-filter-field">
+                <label id="direction-label">Ordre</label>
+
+                {% set directionOptions = [
+                    {value: 'ASC', label: 'Croissant'},
+                    {value: 'DESC', label: 'Décroissant'}
+                ] %}
+
+                {% set currentDirection = selectedDirection|default('ASC') %}
+                {% set directionLabel = 'Croissant' %}
+
+                {% for option in directionOptions %}
+                    {% if currentDirection == option.value %}
+                        {% set directionLabel = option.label %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="admin-category-select">
+                    <input
+                        type="hidden"
+                        name="direction"
+                        value="{{ currentDirection }}"
+                    >
+
+                    <button
+                        type="button"
+                        class="admin-category-select-trigger"
+                        aria-labelledby="direction-label"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                    >
+                        <span class="admin-category-select-value">
+                            {{ directionLabel }}
+                        </span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+
+                    <div
+                        class="admin-category-select-options"
+                        role="listbox"
+                        hidden
+                    >
+                        {% for option in directionOptions %}
+                            <button
+                                type="button"
+                                class="admin-category-select-option"
+                                role="option"
+                                data-value="{{ option.value }}"
+                                aria-selected="{{ currentDirection == option.value ? 'true' : 'false' }}"
+                            >
+                                {{ option.label }}
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Actions des filtres #}
+            <div class="admin-category-filter-actions">
+                <button type="submit" class="admin-primary-action">
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+                </button>
+
+                <a
+                    href="{{ path('admin_category_index') }}"
+                    class="admin-table-action"
+                >
+                    Réinitialiser
+                </a>
+            </div>
+        </form>
+
+        {# Tableau des catégories #}
+        <div class="admin-table-card">
+            <div class="admin-table-wrapper">
+                <table class="admin-table admin-categories-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Référence externe</th>
+                            <th>Slug</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for category in categories %}
+                        <tr>
+                            <td>
+                                <span class="admin-order-id">
+                                    #{{ category.id }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="admin-category-info">
+                                    <span class="admin-category-name">
+                                        {{ category.name }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="admin-product-reference">
+                                    {{ category.externalReference ?? '—' }}
+                                </span>
+                            </td>
+
+                            <td>{{ category.slug }}</td>
+
+                            <td>
+                                {% if category.isActive %}
+                                    <span class="admin-status admin-product-status-active">
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="admin-status admin-product-status-inactive">
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="admin-category-actions">
+                                    <a
+                                        href="{{ path('admin_category_edit', {id: category.id}) }}"
+                                        class="admin-table-action"
+                                        title="Modifier"
+                                        aria-label="Modifier la catégorie {{ category.name }}"
+                                    >
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        <span>Modifier</span>
+                                    </a>
+
+                                    <form
+                                        method="post"
+                                        action="{{ path('admin_category_delete', {id: category.id}) }}"
+                                        class="admin-category-delete-form"
+                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cette catégorie ?');"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="_token"
+                                            value="{{ csrf_token('delete' ~ category.id) }}"
+                                        >
+                                        
+                                        <button
+                                            type="button"
+                                            class="admin-table-action admin-category-delete-action"
+                                            onclick="document.getElementById('deleteCategoryModal-{{ category.id }}').showModal()"
+                                        >
+                                            <i class="bi bi-trash3"></i>
+                                            Supprimer
+                                        </button>
+
+                                        <dialog id="deleteCategoryModal-{{ category.id }}" class="admin-delete-modal">
+                                            <div class="admin-delete-modal-content">
+
+                                                <div class="admin-delete-modal-icon">
+                                                    <i class="bi bi-exclamation-triangle"></i>
+                                                </div>
+
+                                                <h2>Confirmer la suppression</h2>
+
+                                                <p>
+                                                    Voulez-vous vraiment supprimer la catégorie
+                                                    <strong>{{ category.name }}</strong> ?
+                                                </p>
+
+                                                <p class="admin-delete-modal-warning">
+                                                    Cette action peut être irréversible.
+                                                </p>
+
+                                                <div class="admin-delete-modal-actions">
+
+                                                    <button
+                                                        type="button"
+                                                        class="admin-delete-cancel-action"
+                                                        onclick="this.closest('dialog').close()"
+                                                    >
+                                                        Annuler
+                                                    </button>
+
+                                                    <form
+                                                        method="post"
+                                                        action="{{ path('admin_category_delete', {'id': category.id}) }}"
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="_token"
+                                                            value="{{ csrf_token('delete' ~ category.id) }}"
+                                                        >
+
+                                                        <button type="submit" class="admin-delete-confirm-action">
+                                                            <i class="bi bi-trash3"></i>
+                                                            Confirmer la suppression
+                                                        </button>
+                                                    </form>
+
+                                                </div>
+                                            </div>
+                                        </dialog>
+
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="admin-empty">
+                                    <i class="bi bi-folder2-open"></i>
+                                    <p>
+                                        Aucune catégorie ne correspond à votre recherche.
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {# Pagination #}
+        {% if totalPages > 1 %}
+            <nav
+                class="admin-category-pagination"
+                aria-label="Pagination des catégories"
+            >
+                <div class="admin-category-pagination-info">
+                    Page {{ currentPage }} sur {{ totalPages }}
+                </div>
+
+                <div class="admin-category-pagination-links">
+                    {% if currentPage > 1 %}
+                        <a
+                            href="{{ path('admin_category_index', app.request.query.all|merge({page: currentPage - 1})) }}"
+                            class="admin-table-action"
+                        >
+                            <i class="bi bi-chevron-left"></i>
+                            Précédent
+                        </a>
+                    {% endif %}
+
+                    {% for pageNumber in 1..totalPages %}
+                        {% if pageNumber == currentPage %}
+                            <span
+                                class="admin-category-page-number active"
+                                aria-current="page"
+                            >
+                                {{ pageNumber }}
+                            </span>
+                        {% elseif pageNumber == 1
+                            or pageNumber == totalPages
+                            or (pageNumber >= currentPage - 2 and pageNumber <= currentPage + 2) %}
+                            <a
+                                href="{{ path('admin_category_index', app.request.query.all|merge({page: pageNumber})) }}"
+                                class="admin-category-page-number"
+                            >
+                                {{ pageNumber }}
+                            </a>
+                        {% elseif pageNumber == currentPage - 3
+                            or pageNumber == currentPage + 3 %}
+                            <span class="admin-category-page-ellipsis">…</span>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if currentPage < totalPages %}
+                        <a
+                            href="{{ path('admin_category_index', app.request.query.all|merge({page: currentPage + 1})) }}"
+                            class="admin-table-action"
+                        >
+                            Suivant
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </nav>
+        {% endif %}
+
+    </section>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* ========================================
+               RECHERCHE INTUITIVE
+               ======================================== */
+
+            const wrapper = document.querySelector(
+                '.admin-category-search-wrapper'
+            );
+
+            if (wrapper) {
+                const input = wrapper.querySelector('#search');
+                const suggestions = wrapper.querySelector(
+                    '#admin-category-suggestions'
+                );
+                const form = input.closest('form');
+                const url = wrapper.dataset.autocompleteUrl;
+
+                let debounceTimer;
+                let requestController;
+
+                function closeSuggestions() {
+                    suggestions.hidden = true;
+                    suggestions.replaceChildren();
+                    input.setAttribute('aria-expanded', 'false');
+                }
+
+                function showMessage(message) {
+                    const item = document.createElement('div');
+                    item.className = 'admin-category-suggestion-message';
+                    item.textContent = message;
+
+                    suggestions.replaceChildren(item);
+                    suggestions.hidden = false;
+                    input.setAttribute('aria-expanded', 'true');
+                }
+
+                function renderSuggestions(categories) {
+                    suggestions.replaceChildren();
+
+                    if (categories.length === 0) {
+                        showMessage('Aucune catégorie trouvée.');
+                        return;
+                    }
+
+                    categories.forEach((category) => {
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'admin-category-suggestion';
+                        button.setAttribute('role', 'option');
+
+                        const name = document.createElement('span');
+                        name.className = 'admin-category-suggestion-name';
+                        name.textContent = category.name;
+
+                        const reference = document.createElement('small');
+                        reference.className =
+                            'admin-category-suggestion-reference';
+
+                        reference.textContent = category.externalReference
+                            ? 'Réf. : ' + category.externalReference
+                            : 'Catégorie #' + category.id;
+
+                        button.append(name, reference);
+
+                        button.addEventListener('click', () => {
+                            input.value = category.name;
+                            closeSuggestions();
+                            form.requestSubmit();
+                        });
+
+                        suggestions.appendChild(button);
+                    });
+
+                    suggestions.hidden = false;
+                    input.setAttribute('aria-expanded', 'true');
+                }
+
+                input.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+
+                    if (requestController) {
+                        requestController.abort();
+                    }
+
+                    const query = input.value.trim();
+
+                    if (query.length < 2) {
+                        closeSuggestions();
+                        return;
+                    }
+
+                    debounceTimer = setTimeout(async () => {
+                        requestController = new AbortController();
+
+                        try {
+                            const response = await fetch(
+                                url + '?q=' + encodeURIComponent(query),
+                                {
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    },
+                                    signal: requestController.signal
+                                }
+                            );
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    'Erreur lors de la recherche.'
+                                );
+                            }
+
+                            const categories = await response.json();
+
+                            // Ignorer les résultats devenus obsolètes.
+                            if (input.value.trim() === query) {
+                                renderSuggestions(categories);
+                            }
+                        } catch (error) {
+                            if (error.name !== 'AbortError') {
+                                closeSuggestions();
+                            }
+                        }
+                    }, 200);
+                });
+
+                input.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') {
+                        closeSuggestions();
+                    }
+                });
+
+                document.addEventListener('click', (event) => {
+                    if (!wrapper.contains(event.target)) {
+                        closeSuggestions();
+                    }
+                });
+            }
+
+            /* ========================================
+               LISTES DÉROULANTES PERSONNALISÉES
+               ======================================== */
+
+            const dropdowns = document.querySelectorAll(
+                '.admin-category-select'
+            );
+
+            function closeDropdown(dropdown) {
+                const trigger = dropdown.querySelector(
+                    '.admin-category-select-trigger'
+                );
+                const optionsList = dropdown.querySelector(
+                    '.admin-category-select-options'
+                );
+
+                optionsList.hidden = true;
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+
+            function closeOtherDropdowns(currentDropdown) {
+                dropdowns.forEach((dropdown) => {
+                    if (dropdown !== currentDropdown) {
+                        closeDropdown(dropdown);
+                    }
+                });
+            }
+
+            dropdowns.forEach((dropdown) => {
+                const trigger = dropdown.querySelector(
+                    '.admin-category-select-trigger'
+                );
+                const hiddenInput = dropdown.querySelector(
+                    'input[type="hidden"]'
+                );
+                const valueLabel = dropdown.querySelector(
+                    '.admin-category-select-value'
+                );
+                const optionsList = dropdown.querySelector(
+                    '.admin-category-select-options'
+                );
+                const options = Array.from(
+                    dropdown.querySelectorAll(
+                        '.admin-category-select-option'
+                    )
+                );
+
+                function openDropdown() {
+                    closeOtherDropdowns(dropdown);
+                    optionsList.hidden = false;
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+
+                function selectOption(option) {
+                    hiddenInput.value = option.dataset.value;
+                    valueLabel.textContent = option.textContent.trim();
+
+                    options.forEach((item) => {
+                        item.setAttribute(
+                            'aria-selected',
+                            item === option ? 'true' : 'false'
+                        );
+                    });
+
+                    closeDropdown(dropdown);
+                    trigger.focus();
+                }
+
+                trigger.addEventListener('click', () => {
+                    if (optionsList.hidden) {
+                        openDropdown();
+                    } else {
+                        closeDropdown(dropdown);
+                    }
+                });
+
+                options.forEach((option, index) => {
+                    option.addEventListener('click', () => {
+                        selectOption(option);
+                    });
+
+                    option.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            closeDropdown(dropdown);
+                            trigger.focus();
+                        }
+
+                        if (event.key === 'ArrowDown') {
+                            event.preventDefault();
+                            options[
+                                (index + 1) % options.length
+                            ].focus();
+                        }
+
+                        if (event.key === 'ArrowUp') {
+                            event.preventDefault();
+                            options[
+                                (index - 1 + options.length) % options.length
+                            ].focus();
+                        }
+
+                        if (event.key === 'Home') {
+                            event.preventDefault();
+                            options[0]?.focus();
+                        }
+
+                        if (event.key === 'End') {
+                            event.preventDefault();
+                            options[options.length - 1]?.focus();
+                        }
+                    });
+                });
+
+                trigger.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape') {
+                        closeDropdown(dropdown);
+                    }
+
+                    if (
+                        event.key === 'ArrowDown' ||
+                        event.key === 'Enter' ||
+                        event.key === ' '
+                    ) {
+                        event.preventDefault();
+
+                        if (optionsList.hidden) {
+                            openDropdown();
+
+                            const selectedOption = options.find(
+                                (option) =>
+                                    option.getAttribute('aria-selected') ===
+                                    'true'
+                            );
+
+                            (selectedOption || options[0])?.focus();
+                        }
+                    }
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                dropdowns.forEach((dropdown) => {
+                    if (!dropdown.contains(event.target)) {
+                        closeDropdown(dropdown);
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

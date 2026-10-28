@@ -80,6 +80,7 @@ class Order
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $adultConfirmedAt = null;
 
+    
     // =========================
     // DATES
     // =========================
@@ -89,6 +90,22 @@ class Order
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $paidAt = null;
+
+    // =========================
+    // INVOICE
+    // =========================
+
+    #[ORM\Column(length: 50, unique: true, nullable: true)]
+    private ?string $invoiceNumber = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $invoiceIssuedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $invoiceEmailSentAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $orderConfirmationEmailSentAt = null;
 
     // =========================
     // ORDER ITEMS
@@ -329,4 +346,55 @@ class Order
 
         return $this;
     }
+
+    
+    public function getInvoiceNumber(): ?string
+    {
+        return $this->invoiceNumber;
+    }
+
+    public function setInvoiceNumber(?string $invoiceNumber): static
+    {
+        $this->invoiceNumber = $invoiceNumber;
+
+        return $this;
+    }
+
+    public function getInvoiceIssuedAt(): ?\DateTimeImmutable
+    {
+        return $this->invoiceIssuedAt;
+    }
+
+    public function setInvoiceIssuedAt(?\DateTimeImmutable $invoiceIssuedAt): static
+    {
+        $this->invoiceIssuedAt = $invoiceIssuedAt;
+
+        return $this;
+    }
+
+    public function getInvoiceEmailSentAt(): ?\DateTimeImmutable
+    {
+        return $this->invoiceEmailSentAt;
+    }
+
+    public function setInvoiceEmailSentAt(?\DateTimeImmutable $invoiceEmailSentAt): static
+    {
+        $this->invoiceEmailSentAt = $invoiceEmailSentAt;
+
+        return $this;
+    }
+
+    public function getOrderConfirmationEmailSentAt(): ?\DateTimeImmutable
+    {
+        return $this->orderConfirmationEmailSentAt;
+    }
+
+    public function setOrderConfirmationEmailSentAt(
+        ?\DateTimeImmutable $orderConfirmationEmailSentAt
+    ): static {
+        $this->orderConfirmationEmailSentAt = $orderConfirmationEmailSentAt;
+
+        return $this;
+    }
+
 }

@@ -43,9 +43,11 @@ class ProductType extends AbstractType
             // =========================
             // PRIX / STOCK
             // =========================
-            ->add('price', MoneyType::class, [
-                'label' => 'Prix',
-                'currency' => 'EUR'
+            ->add('price', NumberType::class, [
+                'label' => 'Prix €',
+                'html5' => false,
+                'scale' => 2,
+                'required' => true,
             ])
 
             ->add('stock', NumberType::class, [
@@ -85,15 +87,15 @@ class ProductType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => [
+                    new File(
+                        maxSize: '2M',
+                        mimeTypes: [
                             'image/jpeg',
                             'image/png',
                             'image/webp'
                         ],
-                        'mimeTypesMessage' => 'Format image invalide'
-                    ])
+                        mimeTypesMessage: 'Format image invalide'
+                    )
                 ]
             ])
         ;

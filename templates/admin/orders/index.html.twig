@@ -4,52 +4,174 @@
 
 {% block body %}
 
-<h1>Commandes</h1>
+<div class="admin-dashboard">
 
-<table border="1" cellpadding="10" cellspacing="0">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Client</th>
-            <th>Email</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Action</th>
-        </tr>
-    </thead>
+{# =========================
+   EN-TÊTE
+   ========================= #}
 
-    <tbody>
-        {% for order in orders %}
-            <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.firstName }} {{ order.lastName }}</td>
-                <td>{{ order.email }}</td>
-                <td>{{ order.total }} €</td>
-                <td>
-                    {% if order.status == 'paid' %}
-                        <span style="color:green;font-weight:bold;">Payée</span>
+<div class="admin-page-header">
+    <div class="mb-4">
+        <a href="{{ path('admin_dashboard') }}" class="account-back-link">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au Tableau de Bord
+        </a>
+    </div>
 
-                    {% elseif order.status == 'pending' %}
-                        <span style="color:orange;font-weight:bold;">En attente</span>
+    <div>
+        <p class="admin-eyebrow">
+            Gestion
+        </p>
 
-                    {% elseif order.status == 'shipped' %}
-                        <span style="color:blue;font-weight:bold;">Expédiée</span>
+        <h1>
+            Commandes
+        </h1>
 
-                    {% elseif order.status == 'cancelled' %}
-                        <span style="color:red;font-weight:bold;">Annulée</span>
+        <p>
+            Consultez et gérez les commandes de votre boutique.
+        </p>
+    </div>
 
-                    {% endif %}
-                </td>
-                <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
-                <td>
-                    <a href="{{ path('admin_orders_show', {id: order.id}) }}">
-                        Voir
-                    </a>
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+</div>
+
+
+{# =========================
+   TABLEAU DES COMMANDES
+   ========================= #}
+
+<section class="admin-section">
+
+    <div class="admin-section-header">
+
+        <div>
+            <p class="admin-eyebrow">
+                Activité
+            </p>
+
+            <h2>
+                Toutes les commandes
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="admin-table-card">
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Client</th>
+                        <th>Email</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for order in orders %}
+
+                        <tr>
+
+                            <td>
+                                <span class="admin-order-id">
+                                    #{{ order.id }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="admin-client-name">
+                                    {{ order.firstName }}
+                                    {{ order.lastName }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="admin-order-email">
+                                    {{ order.email }}
+                                </span>
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ order.total }} €
+                                </strong>
+                            </td>
+
+                            <td>
+
+                                {% if order.status == 'paid' %}
+
+                                    <span class="admin-status admin-status-paid">
+                                        Payée
+                                    </span>
+
+                                {% elseif order.status == 'pending' %}
+
+                                    <span class="admin-status admin-status-pending">
+                                        En attente
+                                    </span>
+
+                                {% elseif order.status == 'shipped' %}
+
+                                    <span class="admin-status admin-status-shipped">
+                                        Expédiée
+                                    </span>
+
+                                {% elseif order.status == 'cancelled' %}
+
+                                    <span class="admin-status admin-status-cancelled">
+                                        Annulée
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+                                <span class="admin-date">
+                                    {{ order.createdAt|date('d/m/Y H:i') }}
+                                </span>
+                            </td>
+
+                            <td class="admin-table-action">
+
+                                <a href="{{ path('admin_orders_show', {id: order.id}) }}">
+                                    Voir
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="7" class="admin-empty">
+                                Aucune commande pour le moment.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+</div>
 
 {% endblock %}

@@ -1,62 +1,326 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Product{% endblock %}
+{% block title %}{{ product.name }}{% endblock %}
 
 {% block body %}
-    <h1>Product</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ product.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ product.name }}</td>
-            </tr>
-            <tr>
-                <th>Slug</th>
-                <td>{{ product.slug }}</td>
-            </tr>
-            <tr>
-                <th>SeoSlug</th>
-                <td>{{ product.seoSlug }}</td>
-            </tr>
-            <tr>
-                <th>SupplierReference</th>
-                <td>{{ product.supplierReference }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ product.description }}</td>
-            </tr>
-            <tr>
-                <th>Price</th>
-                <td>{{ product.price }}</td>
-            </tr>
-            <tr>
-                <th>Stock</th>
-                <td>{{ product.stock }}</td>
-            </tr>
-            <tr>
-                <th>IsActive</th>
-                <td>{{ product.isActive ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ product.createdAt ? product.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>UpdatedAt</th>
-                <td>{{ product.updatedAt ? product.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+<div class="admin-dashboard">
 
-    <a href="{{ path('app_admin_product_index') }}">back to list</a>
+    {# =========================
+       EN-TÊTE
+       ========================= #}
 
-    <a href="{{ path('app_admin_product_edit', {'id': product.id}) }}">edit</a>
+    <div class="admin-page-header admin-product-show-header">
 
-    {{ include('admin_product/_delete_form.html.twig') }}
+        <div class="admin-product-back">
+            <a href="{{ path('admin_product_index') }}" class="account-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour aux produits
+            </a>
+        </div>
+
+        <div class="admin-product-show-title">
+            <p class="admin-eyebrow">
+                Catalogue
+            </p>
+
+            <h1>
+                {{ product.name }}
+            </h1>
+
+            <p>
+                Consultez les informations détaillées de ce produit.
+            </p>
+        </div>
+
+    </div>
+
+
+    {# =========================
+       INFORMATIONS PRINCIPALES
+       ========================= #}
+
+    <section class="admin-section">
+
+        <div class="admin-section-header">
+            <div>
+                <p class="admin-eyebrow">
+                    Informations
+                </p>
+
+                <h2>
+                    Détails du produit
+                </h2>
+            </div>
+        </div>
+
+
+        <div class="admin-product-show-card">
+
+            <div class="admin-product-show-grid">
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        ID : 
+                    </span>
+
+                    <strong class="admin-product-show-value">
+                        #{{ product.id }}
+                    </strong>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Référence fournisseur :
+                    </span>
+
+                    <strong class="admin-product-show-value admin-product-show-reference">
+                        {{ product.supplierReference ?: '—' }}
+                    </strong>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Prix : 
+                    </span>
+
+                    <strong class="admin-product-show-value admin-product-show-price">
+                        {{ product.price|number_format(2, ',', ' ') }} €
+                    </strong>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Stock : 
+                    </span>
+
+                    <div>
+
+                        {% if product.stock is null %}
+
+                            <span class="admin-stock-unknown">
+                                —
+                            </span>
+
+                        {% elseif product.stock <= 0 %}
+
+                            <span class="admin-stock admin-stock-out">
+                                Rupture
+                            </span>
+
+                        {% elseif product.stock <= 5 %}
+
+                            <span class="admin-stock admin-stock-low">
+                                {{ product.stock }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="admin-stock admin-stock-ok">
+                                {{ product.stock }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Statut : 
+                    </span>
+
+                    <div>
+
+                        {% if product.isActive %}
+
+                            <span class="admin-status admin-product-status-active">
+                                Actif
+                            </span>
+
+                        {% else %}
+
+                            <span class="admin-status admin-product-status-inactive">
+                                Inactif
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Catégorie : 
+                    </span>
+
+                    <strong class="admin-product-show-value">
+                        {{ product.category ? product.category.name : '—' }}
+                    </strong>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Créé le : 
+                    </span>
+
+                    <span class="admin-product-show-date">
+                        {{ product.createdAt ? product.createdAt|date('d/m/Y à H:i') : '—' }}
+                    </span>
+                </div>
+
+
+                <div class="admin-product-show-field">
+                    <span class="admin-product-show-label">
+                        Modifié le : 
+                    </span>
+
+                    <span class="admin-product-show-date">
+                        {{ product.updatedAt ? product.updatedAt|date('d/m/Y à H:i') : '—' }}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {# =========================
+       DESCRIPTION
+       ========================= #}
+
+    <section class="admin-section">
+
+        <div class="admin-section-header">
+
+            <div>
+                <p class="admin-eyebrow">
+                    Contenu
+                </p>
+
+                <h2>
+                    Description
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="admin-product-show-card admin-product-description-card">
+
+            {% if product.description %}
+
+                <div class="admin-product-show-field">
+
+                    <span class="admin-product-show-label">
+                        Emballage disponible en :
+                    </span>
+
+                    <div>
+
+                        {% set languages = {
+                            'fr': 'Français',
+                            'gb': 'Anglais',
+                            'en': 'Anglais',
+                            'de': 'Allemand',
+                            'nl': 'Néerlandais',
+                            'se': 'Suédois',
+                            'es': 'Espagnol',
+                            'it': 'Italien',
+                            'pt': 'Portugais',
+                            'pl': 'Polonais'
+                        } %}
+
+                        {# On récupère uniquement la partie après ":" #}
+                        {% set description = product.description|split(':')|last|trim %}
+
+                        {# On récupère les codes de langue #}
+                        {% set codes = description|trim('/')|split('/') %}
+
+                        <ul class="admin-product-description-languages">
+
+                            {% for code in codes %}
+
+                                {% set code = code|lower|trim %}
+
+                                {% if code and languages[code] is defined %}
+
+                                    <li>
+                                        {{ languages[code] }}
+                                    </li>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            {% else %}
+
+                <p class="admin-product-empty">
+                    Aucune information d'emballage renseignée pour ce produit.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    {# =========================
+       ACTIONS
+       ========================= #}
+
+    <section class="admin-section">
+
+        <div class="admin-section-header">
+
+            <div>
+                <p class="admin-eyebrow">
+                    Gestion
+                </p>
+
+                <h2>
+                    Actions
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="admin-product-show-actions">
+
+            <a href="{{ path('admin_product_edit', {'id': product.id}) }}"
+               class="admin-primary-action">
+
+                <i class="bi bi-pencil"></i>
+                Modifier le produit
+
+            </a>
+
+            <div class="admin-product-delete">
+
+                {{ include('admin/admin_product/_delete_form.html.twig') }}
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
 {% endblock %}

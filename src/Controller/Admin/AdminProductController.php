@@ -192,6 +192,23 @@ class AdminProductController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            // =========================
+            // IMAGE PRINCIPALE
+            // =========================
+            $mainImageId = $request->request->get('main_image');
+
+            if ($mainImageId) {
+
+                foreach ($product->getProductImages() as $image) {
+                    $image->setIsMain(
+                        (string) $image->getId() === (string) $mainImageId
+                    );
+                }
+            }
+
+            // =========================
+            // AJOUT D'UNE IMAGE
+            // =========================
             $imageFile = $form->get('imageFile')->getData();
 
             if ($imageFile) {
@@ -207,7 +224,9 @@ class AdminProductController extends AbstractController
                 try {
                     $imageFile->move($targetDirectory, $newFilename);
                 } catch (FileException $e) {
-                    throw new \Exception('Erreur upload image : ' . $e->getMessage());
+                    throw new \Exception(
+                        'Erreur upload image : ' . $e->getMessage()
+                    );
                 }
 
                 $image = new ProductImage();

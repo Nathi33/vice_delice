@@ -67,9 +67,9 @@
                 {# ADMIN (optionnel) #}
                 {% if is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
-                        <a class="nav-link text-warning d-flex align-items-center gap-1" href="#">
+                        <a class="nav-link text-warning d-flex align-items-center gap-1" href="{{ path('admin_dashboard') }}">
                             <i class="bi bi-speedometer2"></i>
-                            Admin
+                            Tableau de Bord
                         </a>
                     </li>
                 {% endif %}
@@ -281,6 +281,7 @@
     id="age-gate"
     class="age-gate"
     aria-hidden="true"
+    style="display: none;"
 >
     <div class="age-gate-content">
 
@@ -380,19 +381,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    const ageVerified = localStorage.getItem('vice_delice_age_verified');
+    const ageVerified = sessionStorage.getItem('vice_delice_age_verified');
 
     if (ageVerified === 'true') {
         ageGate.remove();
         return;
     }
 
+    ageGate.style.display = 'flex';
     ageGate.setAttribute('aria-hidden', 'false');
 
     document.body.classList.add('age-gate-open');
 
     enterButton.addEventListener('click', function () {
-        localStorage.setItem('vice_delice_age_verified', 'true');
+        sessionStorage.setItem('vice_delice_age_verified', 'true');
 
         ageGate.classList.add('is-closing');
 

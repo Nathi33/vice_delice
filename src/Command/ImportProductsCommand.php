@@ -3,10 +3,10 @@
 namespace App\Command;
 
 use App\Entity\Product;
-use App\Entity\Category;
 use App\Entity\ProductImage;
 use App\Repository\ProductRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\ProductImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
     name: 'app:import-products',
-    description: 'Import produits XML avec images + SEO slug (optimisé mémoire)'
+    description: 'Import produits XML avec catégories, images et SEO'
 )]
 class ImportProductsCommand extends Command
 {
@@ -24,55 +24,206 @@ class ImportProductsCommand extends Command
         private EntityManagerInterface $em,
         private ProductRepository $productRepo,
         private CategoryRepository $categoryRepo,
+        private ProductImageRepository $productImageRepo,
         private SluggerInterface $slugger
     ) {
         parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    protected function execute(
+        InputInterface $input,
+        OutputInterface $output
+    ): int {
         ini_set('memory_limit', '1024M');
 
         $file = 'var/import/products.xml';
 
-        if (!file_exists($file)) {
-            $output->writeln('<error>XML introuvable</error>');
+        if (!is_file($file)) {
+            $output->writeln(
+                '<error>XML introuvable : ' . $file . '</error>'
+            );
+
             return Command::FAILURE;
         }
 
-        $xml = simplexml_load_file($file, 'SimpleXMLElement', LIBXML_NOCDATA);
+        libxml_use_internal_errors(true);
 
-        if (!$xml) {
-            $output->writeln('<error>XML invalide</error>');
+        $xml = simplexml_load_file(
+            $file,
+            'SimpleXMLElement',
+            LIBXML_NOCDATA
+        );
+
+        if ($xml === false) {
+            $output->writeln(
+                '<error>Le fichier XML est invalide.</error>'
+            );
+
+            foreach (libxml_get_errors() as $error) {
+                $output->writeln(trim($error->message));
+            }
+
+            libxml_clear_errors();
+
             return Command::FAILURE;
         }
 
+        libxml_clear_errors();
+
+        /*
+         * ÉTAPE 1 : vérifier toutes les catégories avant l'import.
+         */
+        $categoryPaths = [];
+
+        foreach ($xml->product as $item) {
+            $publicId = trim((string) $item->public_id);
+
+            if ($publicId === '') {
+                continue;
+            }
+
+            $path = trim(
+                (string) ($item->categories->category ?? '')
+            );
+
+            if ($path === '') {
+                $path = 'Divers';
+            }
+
+            $categoryPaths[$path] = true;
+        }
+
+        $missingCategories = [];
+
+        foreach (array_keys($categoryPaths) as $path) {
+            if (
+                !$this->categoryRepo
+                    ->findOneByExternalReference($path)
+            ) {
+                $missingCategories[] = $path;
+            }
+        }
+
+        if ($missingCategories !== []) {
+            $output->writeln(
+                '<error>Import annulé : catégories absentes de la base.</error>'
+            );
+
+            foreach ($missingCategories as $path) {
+                $output->writeln(' - ' . $path);
+            }
+
+            $output->writeln(
+                '<comment>Aucun produit n’a été modifié par cette commande.</comment>'
+            );
+
+            return Command::FAILURE;
+        }
+
+        $output->writeln(sprintf(
+            '<info>Vérification des catégories réussie : %d chemins.</info>',
+            count($categoryPaths)
+        ));
+
+        /*
+         * ÉTAPE 2 : préparer l'import par lots.
+         */
         $i = 0;
         $batchSize = 50;
 
         $categoriesCache = [];
         $productsCache = [];
+        $imagesCache = [];
 
+        /*
+         * Les réservations utilisent le publicId, et non l'ID
+         * en base, car un nouveau produit n'a pas encore d'ID
+         * avant le flush().
+         */
+        $reservedSlugs = [];
+        $reservedSeoSlugs = [];
+
+        /*
+         * Générer un slug technique unique.
+         */
+        $generateUniqueSlug = function (
+            string $value,
+            Product $product,
+            array &$reserved,
+            string $ownerKey
+        ): string {
+            $baseSlug = $this->slugger
+                ->slug($value)
+                ->lower()
+                ->toString();
+
+            if ($baseSlug === '') {
+                $baseSlug = 'produit';
+            }
+
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (true) {
+                $existing = $this->productRepo->findOneBy([
+                    'slug' => $slug,
+                ]);
+
+                $availableInDatabase = (
+                    !$existing || $existing === $product
+                );
+
+                $reservedOwner = $reserved[$slug] ?? null;
+
+                $availableInBatch = (
+                    $reservedOwner === null
+                    || $reservedOwner === $ownerKey
+                );
+
+                if (
+                    $availableInDatabase
+                    && $availableInBatch
+                ) {
+                    $reserved[$slug] = $ownerKey;
+
+                    return $slug;
+                }
+
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+        };
+
+        /*
+         * ÉTAPE 3 : parcourir les produits XML.
+         */
         foreach ($xml->product as $item) {
-
             $publicId = trim((string) $item->public_id);
+
             if ($publicId === '') {
                 continue;
             }
 
-            // =========================
-            // PRODUCT (cache pour éviter re-query après clear)
-            // =========================
+            /*
+             * PRODUIT : recherche par référence fournisseur.
+             */
             if (!isset($productsCache[$publicId])) {
                 $product = $this->productRepo->findOneBy([
-                    'supplierReference' => $publicId
+                    'supplierReference' => $publicId,
                 ]);
 
                 if (!$product) {
                     $product = new Product();
+
                     $product->setSupplierReference($publicId);
+
                     $product->setSlug(
-                        $this->slugger->slug($publicId)->lower()->toString()
+                        $generateUniqueSlug(
+                            $publicId,
+                            $product,
+                            $reservedSlugs,
+                            $publicId
+                        )
                     );
 
                     $this->em->persist($product);
@@ -83,56 +234,92 @@ class ImportProductsCommand extends Command
 
             $product = $productsCache[$publicId];
 
-            // =========================
-            // CATEGORY (cache optimisé)
-            // =========================
-            $categoryName = trim((string) ($item->categories->category ?? 'Divers'));
-            $categorySlug = $this->slugger->slug($categoryName)->lower()->toString();
+            /*
+             * CATÉGORIE : utiliser le chemin complet.
+             */
+            $categoryPath = trim(
+                (string) ($item->categories->category ?? '')
+            );
 
-            if (!isset($categoriesCache[$categorySlug])) {
-
-                $category = $this->categoryRepo->findOneBy([
-                    'slug' => $categorySlug
-                ]);
-
-                if (!$category) {
-                    $category = new Category();
-                    $category->setName($categoryName);
-                    $category->setSlug($categorySlug);
-                    $category->setExternalReference($categoryName);
-
-                    $this->em->persist($category);
-                }
-
-                $categoriesCache[$categorySlug] = $category;
+            if ($categoryPath === '') {
+                $categoryPath = 'Divers';
             }
 
-            $category = $categoriesCache[$categorySlug];
+            if (!isset($categoriesCache[$categoryPath])) {
+                $category = $this->categoryRepo
+                    ->findOneByExternalReference($categoryPath);
 
-            // =========================
-            // DATA PRODUIT
-            // =========================
-            $name = trim((string) ($item->title ?? 'Produit sans nom'));
+                if (!$category) {
+                    $output->writeln(sprintf(
+                        '<error>Catégorie introuvable : "%s".</error>',
+                        $categoryPath
+                    ));
 
-            $description = (string) ($item->description ?? null);
-            $price = (string) ($item->price ?? null);
-            $stock = isset($item->stock->location) ? (int) $item->stock->location : 0;
-            $isActive = ((int) ($item->available ?? 0)) === 1;
+                    return Command::FAILURE;
+                }
 
-            // =========================
-            // SEO SLUG UNIQUE (léger)
-            // =========================
-            $baseSeoSlug = $this->slugger->slug($name)->lower()->toString();
+                $categoriesCache[$categoryPath] = $category;
+            }
+
+            $category = $categoriesCache[$categoryPath];
+
+            /*
+             * DONNÉES PRODUIT.
+             */
+            $name = trim((string) ($item->title ?? ''));
+
+            if ($name === '') {
+                $name = 'Produit sans nom';
+            }
+
+            $description = (string) ($item->description ?? '');
+            $price = (string) ($item->price ?? '');
+
+            $stock = isset($item->stock->location)
+                ? (int) $item->stock->location
+                : 0;
+
+            $isActive = (
+                (int) ($item->available ?? 0)
+            ) === 1;
+
+            /*
+             * SLUG SEO : unicité en base et dans le lot.
+             */
+            $baseSeoSlug = $this->slugger
+                ->slug($name)
+                ->lower()
+                ->toString();
+
+            if ($baseSeoSlug === '') {
+                $baseSeoSlug = 'produit';
+            }
 
             $seoSlug = $baseSeoSlug;
             $counter = 1;
 
             while (true) {
                 $existing = $this->productRepo->findOneBy([
-                    'seoSlug' => $seoSlug
+                    'seoSlug' => $seoSlug,
                 ]);
 
-                if (!$existing || $existing === $product) {
+                $reservedOwner = (
+                    $reservedSeoSlugs[$seoSlug] ?? null
+                );
+
+                $availableInDatabase = (
+                    !$existing || $existing === $product
+                );
+
+                $availableInBatch = (
+                    $reservedOwner === null
+                    || $reservedOwner === $publicId
+                );
+
+                if (
+                    $availableInDatabase
+                    && $availableInBatch
+                ) {
                     break;
                 }
 
@@ -140,9 +327,11 @@ class ImportProductsCommand extends Command
                 $counter++;
             }
 
-            // =========================
-            // UPDATE PRODUCT
-            // =========================
+            $reservedSeoSlugs[$seoSlug] = $publicId;
+
+            /*
+             * MISE À JOUR DES DONNÉES PRODUIT.
+             */
             $product->setName($name);
             $product->setSeoSlug($seoSlug);
             $product->setDescription($description);
@@ -151,46 +340,97 @@ class ImportProductsCommand extends Command
             $product->setCategory($category);
             $product->setIsActive($isActive);
 
-            // =========================
-            // IMAGES
-            // =========================
+            /*
+             * IMAGES : réutiliser les images existantes.
+             */
             if (isset($item->images->image)) {
-
                 foreach ($item->images->image as $imgXml) {
+                    $imageUrl = trim((string) $imgXml->src);
 
-                    $image = new ProductImage();
-                    $image->setUrl((string) $imgXml->src);
-                    $image->setProduct($product);
+                    if ($imageUrl === '') {
+                        continue;
+                    }
 
-                    $isMain = ((int) ($imgXml['preferred'] ?? 0)) === 1;
+                    $isMain = (
+                        (int) ($imgXml['preferred'] ?? 0)
+                    ) === 1;
+
+                    /*
+                     * Éviter les doublons dans le lot courant.
+                     */
+                    if (isset($imagesCache[$publicId][$imageUrl])) {
+                        $imagesCache[$publicId][$imageUrl]
+                            ->setIsMain($isMain);
+
+                        continue;
+                    }
+
+                    $image = null;
+
+                    /*
+                     * Rechercher en base si le produit possède
+                     * déjà un identifiant.
+                     */
+                    if ($product->getId() !== null) {
+                        $image = $this->productImageRepo
+                            ->findOneByProductAndUrl(
+                                $product,
+                                $imageUrl
+                            );
+                    }
+
+                    if (!$image) {
+                        $image = new ProductImage();
+
+                        $image->setUrl($imageUrl);
+                        $image->setProduct($product);
+
+                        $this->em->persist($image);
+                    }
+
                     $image->setIsMain($isMain);
 
-                    $this->em->persist($image);
+                    $imagesCache[$publicId][$imageUrl] = $image;
                 }
             }
 
             $i++;
 
-            // =========================
-            // BATCH FLUSH + MEMORY CLEAN
-            // =========================
+            /*
+             * ENREGISTREMENT PAR LOTS.
+             */
             if ($i % $batchSize === 0) {
-
                 $this->em->flush();
-
-                // ⚠ important : reset propre sans casser les objets déjà liés
                 $this->em->clear();
 
-                // on vide les caches pour éviter objets détachés incohérents
                 $categoriesCache = [];
                 $productsCache = [];
+                $imagesCache = [];
+
+                /*
+                 * Les produits du lot sont maintenant en base.
+                 * Les prochaines recherches les retrouveront.
+                 */
+                $reservedSlugs = [];
+                $reservedSeoSlugs = [];
+
+                $output->writeln(sprintf(
+                    '<comment>%d produits traités...</comment>',
+                    $i
+                ));
             }
         }
 
+        /*
+         * Enregistrer le dernier lot.
+         */
         $this->em->flush();
         $this->em->clear();
 
-        $output->writeln("<info>Import terminé : $i produits</info>");
+        $output->writeln(sprintf(
+            '<info>Import terminé : %d produits traités.</info>',
+            $i
+        ));
 
         return Command::SUCCESS;
     }

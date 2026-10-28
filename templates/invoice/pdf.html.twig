@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture de test</title>
+
+    <style>
+        @page {
+            margin: 35px;
+        }
+
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 11px;
+            color: #24181d;
+        }
+
+        .notice {
+            padding: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #7a2020;
+            background-color: #fce8e8;
+            border: 1px solid #d88989;
+            font-weight: bold;
+        }
+
+        .header {
+            border-bottom: 3px solid #5b1637;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            color: #5b1637;
+            font-size: 26px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #5b1637;
+            font-size: 14px;
+            margin-top: 25px;
+        }
+
+        .muted {
+            color: #665b60;
+            line-height: 1.6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background-color: #5b1637;
+            color: #ffffff;
+            padding: 10px 6px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px 6px;
+            border-bottom: 1px solid #e5dce0;
+        }
+
+        .number {
+            text-align: right;
+        }
+
+        .total {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+            color: #5b1637;
+        }
+
+        .footer {
+            margin-top: 35px;
+            padding-top: 12px;
+            border-top: 1px solid #c6a66b;
+            font-size: 9px;
+            color: #665b60;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="notice">
+        DOCUMENT DE TEST — NON VALABLE COMME FACTURE
+    </div>
+
+    <div class="header">
+        <h1>{{ seller.trade_name }}</h1>
+
+        <p class="muted">
+            {% if seller.legal_name %}
+                {{ seller.legal_name }}<br>
+            {% endif %}
+
+            {% if seller.address %}
+                {{ seller.address }}<br>
+            {% endif %}
+
+            {% if seller.postal_code or seller.city %}
+                {{ seller.postal_code }} {{ seller.city }}<br>
+            {% endif %}
+
+            {% if seller.siret %}
+                SIRET : {{ seller.siret }}<br>
+            {% endif %}
+
+            {% if seller.vat_number %}
+                N° TVA : {{ seller.vat_number }}<br>
+            {% endif %}
+
+            {% if not seller.legal_name and not seller.address and not seller.siret %}
+                Informations légales du vendeur à compléter
+            {% endif %}
+        </p>
+    </div>
+
+    <h2>Commande</h2>
+
+    <p>
+        Numéro de commande :
+        <strong>#{{ order.id }}</strong>
+    </p>
+
+    <p>
+        Date de commande :
+        {{ order.createdAt|date('d/m/Y') }}
+    </p>
+
+    <p>
+        Statut :
+        {{ order.status }}
+    </p>
+
+    <h2>Client et livraison</h2>
+
+    <p>
+        {{ order.firstName }} {{ order.lastName }}<br>
+        {{ order.address }}<br>
+        {{ order.postalCode }} {{ order.city }}<br>
+        {{ order.country }}<br>
+        {{ order.email }}
+
+        {% if order.phone %}
+            <br>{{ order.phone }}
+        {% endif %}
+    </p>
+
+    <h2>Détail des produits</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th class="number">Quantité</th>
+                <th class="number">Prix unitaire</th>
+                <th class="number">Sous-total</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in order.items %}
+                <tr>
+                    <td>
+                        {{ item.productName }}
+                        {% if item.variantSku %}
+                            <br>
+                            <span class="muted">
+                                Référence : {{ item.variantSku }}
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="number">
+                        {{ item.quantity }}
+                    </td>
+
+                    <td class="number">
+                        {{ item.price|number_format(2, ',', ' ') }} €
+                    </td>
+
+                    <td class="number">
+                        {{ item.subtotal|number_format(2, ',', ' ') }} €
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">
+                        Aucun produit dans cette commande.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">
+        Total de la commande :
+        {{ order.total|number_format(2, ',', ' ') }} €
+    </div>
+
+    <div class="footer">
+        Document de test. Les informations légales du vendeur,
+        la numérotation de facture et les mentions de TVA restent
+        à compléter avant toute utilisation comme facture.
+    </div>
+</body>
+</html>
