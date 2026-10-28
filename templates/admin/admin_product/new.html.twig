@@ -1,11 +1,52 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Product{% endblock %}
+{% block title %}Nouveau produit{% endblock %}
 
 {% block body %}
-    <h1>Create new Product</h1>
 
-    {{ include('admin_product/_form.html.twig') }}
+<div class="admin-dashboard">
 
-    <a href="{{ path('app_admin_product_index') }}">back to list</a>
+    {# =========================
+       EN-TÊTE
+       ========================= #}
+
+    <div class="admin-page-header">
+
+        <div class="mb-4">
+            <a href="{{ path('admin_product_index') }}"
+               class="account-back-link">
+
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour aux produits
+
+            </a>
+        </div>
+
+        <div>
+
+            <p class="admin-eyebrow">
+                Catalogue
+            </p>
+
+            <h1>
+                Nouveau produit
+            </h1>
+
+            <p>
+                Ajoutez un nouveau produit à votre boutique.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    {# =========================
+       FORMULAIRE
+       ========================= #}
+
+    {{ include('admin/admin_product/_form.html.twig') }}
+
+</div>
+
 {% endblock %}

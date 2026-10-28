@@ -1,13 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Category{% endblock %}
+{% block title %}Modifier une catégorie{% endblock %}
 
 {% block body %}
-    <h1>Edit Category</h1>
 
-    {{ include('admin_category/_form.html.twig', {'button_label': 'Update'}) }}
+<div class="admin-dashboard">
 
-    <a href="{{ path('admin_category_index') }}">back to list</a>
+    <div class="admin-page-header admin-product-page-header">
 
-    {{ include('admin_category/_delete_form.html.twig') }}
+        <div class="admin-product-back">
+            <a href="{{ path('admin_category_index') }}"
+               class="account-back-link">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour aux catégories
+            </a>
+        </div>
+
+        <div class="admin-product-title">
+            <p class="admin-eyebrow">Catalogue</p>
+            <h1>Modifier une catégorie</h1>
+            <p>Modifiez les informations de votre catégorie.</p>
+        </div>
+
+    </div>
+
+    <div class="admin-category-form-card">
+
+        {{ include('admin/admin_category/_form.html.twig', {
+            'button_label': 'Enregistrer les modifications'
+        }) }}
+
+    </div>
+</div>
+
 {% endblock %}

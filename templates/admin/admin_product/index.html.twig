@@ -4,296 +4,656 @@
 
 {% block body %}
 
-<div style="max-width:1400px;margin:auto;">
+<div class="admin-dashboard">
 
-    <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:30px;
-    ">
+{# =========================
+   EN-TÊTE
+   ========================= #}
+
+<div class="admin-page-header admin-product-page-header">
+
+    <div class="admin-product-back">
+        <a href="{{ path('admin_dashboard') }}" class="account-back-link">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour au Tableau de Bord
+        </a>
+    </div>
+
+    <div class="admin-product-title">
+        <p class="admin-eyebrow">
+            Catalogue
+        </p>
 
         <h1>
             Gestion des produits
         </h1>
 
+        <p>
+            Gérez votre catalogue, vos stocks et la disponibilité de vos produits.
+        </p>
+    </div>
+
+    <div class="admin-product-create">
         <a href="{{ path('admin_product_new') }}"
-           style="
-                padding:12px 20px;
-                background:#6A1857;
-                color:white;
-                text-decoration:none;
-                border-radius:8px;
-                font-weight:bold;
-           ">
-            + Nouveau produit
+           class="admin-primary-action">
+
+            <i class="bi bi-plus-lg"></i>
+            Nouveau produit
+
         </a>
-
-    </div>
-
-    {# =========================
-       RECHERCHE
-       ========================= #}
-
-    <form method="GET" style="
-        margin-bottom:25px;
-        display:flex;
-        gap:10px;
-        align-items:center;
-        flex-wrap:wrap;
-    ">
-
-        <input
-            type="text"
-            name="search"
-            value="{{ search }}"
-            placeholder="Rechercher..."
-            style="padding:10px;width:250px;"
-        >
-
-        {# =========================
-        STATUS
-        ========================= #}
-
-        <select name="status">
-
-            <option value="">
-                Tous statuts
-            </option>
-
-            <option value="active"
-                {% if status == 'active' %}selected{% endif %}
-            >
-                Actifs
-            </option>
-
-            <option value="inactive"
-                {% if status == 'inactive' %}selected{% endif %}
-            >
-                Inactifs
-            </option>
-
-        </select>
-
-        {# =========================
-        CATÉGORIES
-        ========================= #}
-
-        <select name="category">
-
-            <option value="">
-                Toutes catégories
-            </option>
-
-            {% for cat in categories %}
-
-                <option
-                    value="{{ cat.id }}"
-                    {% if category == cat.id %}selected{% endif %}
-                >
-                    {{ cat.name }}
-                </option>
-
-            {% endfor %}
-
-        </select>
-
-        {# =========================
-        STOCK
-        ========================= #}
-
-        <select name="stock">
-
-            <option value="">
-                Tous stocks
-            </option>
-
-            <option value="low"
-                {% if stock == 'low' %}selected{% endif %}
-            >
-                Stock faible
-            </option>
-
-            <option value="out"
-                {% if stock == 'out' %}selected{% endif %}
-            >
-                Rupture
-            </option>
-
-        </select>
-
-        {# =========================
-        IMAGES
-        ========================= #}
-
-        <select name="image">
-
-            <option value="">
-                Toutes images
-            </option>
-
-            <option value="missing"
-                {% if image == 'missing' %}selected{% endif %}
-            >
-                Sans image
-            </option>
-
-        </select>
-
-        <button type="submit">
-            Filtrer
-        </button>
-
-        <a href="{{ path('admin_product_index') }}">
-            Reset
-        </a>
-
-    </form>
-
-    {# =========================
-       TABLEAU PRODUITS
-       ========================= #}
-
-    <div style="
-        background:white;
-        border:1px solid #ddd;
-        border-radius:10px;
-        overflow:hidden;
-    ">
-
-        <table width="100%" cellpadding="12">
-
-            <thead style="background:#f5f5f5;">
-
-                <tr>
-                    <th align="left">ID</th>
-                    <th align="left">Image</th>
-                    <th align="left">Produit</th>
-                    <th align="left">Référence</th>
-                    <th align="left">Prix</th>
-                    <th align="left">Stock</th>
-                    <th align="left">Statut</th>
-                    <th align="left">Créé le</th>
-                    <th align="left">Actions</th>
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            {% for product in products %}
-
-                <tr style="border-bottom:1px solid #eee;">
-
-                    <td>
-                        #{{ product.id }}
-                    </td>
-
-                    <td>
-
-                        {% if product.mainImageUrl %}
-                            <img
-                                src="{{ product.mainImageUrl }}"
-                                alt="{{ product.name }}"
-                                width="60"
-                                style="border-radius:6px;"
-                            >
-                        {% else %}
-                            —
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-                        <strong>{{ product.name }}</strong>
-                        <br>
-                        <small style="color:#777;">
-                            {{ product.slug }}
-                        </small>
-                    </td>
-
-                    <td>
-                        {{ product.supplierReference ?: '—' }}
-                    </td>
-
-                    <td>
-                        {{ product.price|number_format(2, ',', ' ') }} €
-                    </td>
-
-                    <td>
-
-                        {% if product.stock is null %}
-                            —
-                        {% elseif product.stock <= 0 %}
-                            <span style="color:red;font-weight:bold;">
-                                Rupture
-                            </span>
-                        {% elseif product.stock <= 5 %}
-                            <span style="color:orange;font-weight:bold;">
-                                {{ product.stock }}
-                            </span>
-                        {% else %}
-                            {{ product.stock }}
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-
-                        {% if product.isActive %}
-                            <span style="color:green;font-weight:bold;">
-                                Actif
-                            </span>
-                        {% else %}
-                            <span style="color:red;font-weight:bold;">
-                                Inactif
-                            </span>
-                        {% endif %}
-
-                    </td>
-
-                    <td>
-                        {{ product.createdAt ? product.createdAt|date('d/m/Y H:i') : '—' }}
-                    </td>
-
-                    <td style="display:flex;gap:10px;">
-
-                        <a href="{{ path('admin_product_show', {'id': product.id}) }}">
-                            Voir
-                        </a>
-
-                        <a href="{{ path('admin_product_edit', {'id': product.id}) }}">
-                            Modifier
-                        </a>
-
-                    </td>
-
-                </tr>
-
-            {% else %}
-
-                <tr>
-                    <td colspan="9" style="padding:30px;text-align:center;">
-                        Aucun produit trouvé
-                    </td>
-                </tr>
-
-            {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-    {# =========================
-       PAGINATION
-       ========================= #}
-
-    <div style="margin-top:30px;">
-        {{ knp_pagination_render(products) }}
     </div>
 
 </div>
+
+
+{# =========================
+   FILTRES
+   ========================= #}
+
+<section class="admin-section">
+
+    <div class="admin-section-header">
+
+        <div>
+            <p class="admin-eyebrow">
+                Recherche
+            </p>
+
+            <h2>
+                Filtrer les produits
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="admin-product-filters">
+
+        <form method="GET">
+
+            <div class="admin-product-filter-grid">
+
+                {# RECHERCHE #}
+
+                <div class="admin-filter-field admin-filter-search">
+
+                    <label for="product-search">
+                        Recherche
+                    </label>
+
+                    <div class="admin-filter-input-wrapper">
+
+                        <i class="bi bi-search"></i>
+
+                        <input
+                            type="text"
+                            id="product-search"
+                            name="search"
+                            value="{{ search }}"
+                            placeholder="Nom, référence..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                {# STATUT #}
+
+                <div class="admin-filter-field">
+
+                    <label for="product-status">
+                        Statut
+                    </label>
+
+                    <select
+                        id="product-status"
+                        name="status"
+                    >
+
+                        <option value="">
+                            Tous statuts
+                        </option>
+
+                        <option value="active"
+                            {% if status == 'active' %}selected{% endif %}
+                        >
+                            Actifs
+                        </option>
+
+                        <option value="inactive"
+                            {% if status == 'inactive' %}selected{% endif %}
+                        >
+                            Inactifs
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {# CATÉGORIE #}
+
+                <div class="admin-filter-field">
+
+                    <label for="product-category">
+                        Catégorie
+                    </label>
+
+                    <select
+                        id="product-category"
+                        name="category"
+                    >
+
+                        <option value="">
+                            Toutes catégories
+                        </option>
+
+                        {% for cat in categories %}
+
+                            <option
+                                value="{{ cat.id }}"
+                                {% if category == cat.id %}selected{% endif %}
+                            >
+                                {{ cat.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                {# STOCK #}
+
+                <div class="admin-filter-field">
+
+                    <label for="product-stock">
+                        Stock
+                    </label>
+
+                    <select
+                        id="product-stock"
+                        name="stock"
+                    >
+
+                        <option value="">
+                            Tous stocks
+                        </option>
+
+                        <option value="low"
+                            {% if stock == 'low' %}selected{% endif %}
+                        >
+                            Stock faible
+                        </option>
+
+                        <option value="out"
+                            {% if stock == 'out' %}selected{% endif %}
+                        >
+                            Rupture
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                {# IMAGES #}
+
+                <div class="admin-filter-field">
+
+                    <label for="product-image">
+                        Images
+                    </label>
+
+                    <select
+                        id="product-image"
+                        name="image"
+                    >
+
+                        <option value="">
+                            Toutes images
+                        </option>
+
+                        <option value="missing"
+                            {% if image == 'missing' %}selected{% endif %}
+                        >
+                            Sans image
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="admin-filter-actions">
+
+                <button type="submit"
+                        class="btn-outline-gold">
+
+                    <i class="bi bi-funnel"></i>
+                    Filtrer
+
+                </button>
+
+                <a href="{{ path('admin_product_index') }}"
+                   class="admin-reset-link">
+
+                    Réinitialiser
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+{# =========================
+   TABLEAU PRODUITS
+   ========================= #}
+
+<section class="admin-section">
+
+    <div class="admin-section-header">
+
+        <div>
+            <p class="admin-eyebrow">
+                Catalogue
+            </p>
+
+            <h2>
+                Produits
+            </h2>
+        </div>
+
+    </div>
+
+
+    <div class="admin-table-card">
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table admin-products-table">
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Image</th>
+                        <th>Produit</th>
+                        <th>Référence</th>
+                        <th>Prix</th>
+                        <th>Stock</th>
+                        <th>Statut</th>
+                        <th>Créé le</th>
+                        <th></th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for product in products %}
+
+                    <tr>
+
+                        {# ID #}
+
+                        <td>
+                            <span class="admin-order-id">
+                                #{{ product.id }}
+                            </span>
+                        </td>
+
+
+                        {# IMAGE #}
+
+                        <td>
+
+                            {% if product.mainImageUrl %}
+
+                                <img
+                                    src="{{ product.mainImageUrl }}"
+                                    alt="{{ product.name }}"
+                                    class="admin-product-image"
+                                >
+
+                            {% else %}
+
+                                <div class="admin-product-image-placeholder">
+                                    <i class="bi bi-image"></i>
+                                </div>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# PRODUIT #}
+
+                        <td>
+
+                            <div class="admin-product-info">
+
+                                <span class="admin-product-name">
+                                    {{ product.name }}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        {# RÉFÉRENCE #}
+
+                        <td>
+
+                            <span class="admin-product-reference">
+                                {{ product.supplierReference ?: '—' }}
+                            </span>
+
+                        </td>
+
+
+                        {# PRIX #}
+
+                        <td>
+
+                            <strong>
+                                {{ product.price|number_format(2, ',', ' ') }} €
+                            </strong>
+
+                        </td>
+
+
+                        {# STOCK #}
+
+                        <td>
+
+                            {% if product.stock is null %}
+
+                                <span class="admin-stock-unknown">
+                                    —
+                                </span>
+
+                            {% elseif product.stock <= 0 %}
+
+                                <span class="admin-stock admin-stock-out">
+                                    Rupture
+                                </span>
+
+                            {% elseif product.stock <= 5 %}
+
+                                <span class="admin-stock admin-stock-low">
+                                    {{ product.stock }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="admin-stock admin-stock-ok">
+                                    {{ product.stock }}
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# STATUT #}
+
+                        <td>
+
+                            {% if product.isActive %}
+
+                                <span class="admin-status admin-product-status-active">
+                                    Actif
+                                </span>
+
+                            {% else %}
+
+                                <span class="admin-status admin-product-status-inactive">
+                                    Inactif
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {# DATE #}
+
+                        <td>
+
+                            <span class="admin-date">
+                                {{ product.createdAt ? product.createdAt|date('d/m/Y H:i') : '—' }}
+                            </span>
+
+                        </td>
+
+
+                        {# ACTIONS #}
+
+                        <td class="admin-table-action">
+
+                            <div class="admin-product-actions">
+
+                                <a href="{{ path('admin_product_show', {'id': product.id}) }}">
+                                    <i class="bi bi-eye"></i>
+                                    Voir
+                                </a>
+
+                                <a href="{{ path('admin_product_edit', {'id': product.id}) }}">
+                                    <i class="bi bi-pencil"></i>
+                                    Modifier
+                                </a>
+
+                                <button
+                                    type="button"
+                                    class="admin-product-action-delete"
+                                    data-product-id="{{ product.id }}"
+                                    data-product-name="{{ product.name|e('html_attr') }}"
+                                >
+                                    <i class="bi bi-trash"></i>
+                                    Supprimer
+                                </button>
+
+                            </div>
+
+
+                            {# Formulaire de suppression invisible #}
+
+                            <form
+                                method="post"
+                                action="{{ path('admin_product_delete', {'id': product.id}) }}"
+                                id="delete-product-{{ product.id }}"
+                                class="admin-product-delete-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="{{ csrf_token('delete' ~ product.id) }}"
+                                >
+
+                            </form>
+
+                        </td>
+                    </tr>
+
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="9"
+                            class="admin-empty">
+
+                            Aucun produit trouvé.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{# =========================
+   PAGINATION
+   ========================= #}
+
+<div class="admin-pagination">
+
+    {{ knp_pagination_render(products) }}
+
+</div>
+
+{# =========================
+   MODALE SUPPRESSION PRODUIT
+   ========================= #}
+
+<div
+    class="admin-confirm-modal"
+    id="delete-product-modal"
+    aria-hidden="true"
+>
+
+    <div class="admin-confirm-modal-overlay"></div>
+
+    <div
+        class="admin-confirm-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-product-modal-title"
+    >
+
+        <div class="admin-confirm-modal-icon">
+            <i class="bi bi-trash"></i>
+        </div>
+
+        <h2 id="delete-product-modal-title">
+            Supprimer le produit ?
+        </h2>
+
+        <p id="delete-product-modal-message">
+            Êtes-vous sûr de vouloir supprimer ce produit ?
+            Cette action est irréversible.
+        </p>
+
+        <div class="admin-confirm-modal-actions">
+
+            <button
+                type="button"
+                class="admin-confirm-modal-cancel"
+                id="cancel-delete-product"
+            >
+                Annuler
+            </button>
+
+            <button
+                type="button"
+                class="admin-confirm-modal-confirm"
+                id="confirm-delete-product"
+            >
+                <i class="bi bi-trash"></i>
+                Supprimer définitivement
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modal = document.getElementById('delete-product-modal');
+    const cancelButton = document.getElementById('cancel-delete-product');
+    const confirmButton = document.getElementById('confirm-delete-product');
+    const overlay = modal.querySelector('.admin-confirm-modal-overlay');
+
+    let formToSubmit = null;
+
+    document.querySelectorAll('.admin-product-action-delete').forEach(function (button) {
+
+        button.addEventListener('click', function () {
+
+            const productId = this.dataset.productId;
+            const productName = this.dataset.productName;
+
+            formToSubmit = document.getElementById(
+                'delete-product-' + productId
+            );
+
+            document.getElementById('delete-product-modal-message').textContent =
+                'Êtes-vous sûr de vouloir supprimer « ' + productName + ' » ? Cette action est irréversible.';
+
+            modal.classList.add('is-visible');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('admin-modal-open');
+
+            cancelButton.focus();
+        });
+
+    });
+
+
+    function closeModal() {
+
+        modal.classList.remove('is-visible');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('admin-modal-open');
+
+        formToSubmit = null;
+    }
+
+
+    cancelButton.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', closeModal);
+
+
+    confirmButton.addEventListener('click', function () {
+
+        if (formToSubmit) {
+            formToSubmit.submit();
+        }
+
+    });
+
+
+    document.addEventListener('keydown', function (event) {
+
+        if (
+            event.key === 'Escape' &&
+            modal.classList.contains('is-visible')
+        ) {
+            closeModal();
+        }
+
+    });
+
+});
+</script>
 
 {% endblock %}

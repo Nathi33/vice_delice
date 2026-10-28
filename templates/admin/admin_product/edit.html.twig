@@ -4,147 +4,76 @@
 
 {% block body %}
 
-<h1>Modifier le produit</h1>
+<div class="admin-dashboard">
 
-{# =========================
-   FLASH MESSAGES
-   ========================= #}
+    {# =========================
+       EN-TÊTE
+       ========================= #}
 
-{% for message in app.flashes('success') %}
-    <div style="color:green;margin-bottom:15px;">
-        {{ message }}
-    </div>
-{% endfor %}
+    <div class="admin-page-header admin-product-edit-header">
 
-{% for message in app.flashes('error') %}
-    <div style="color:red;margin-bottom:15px;">
-        {{ message }}
-    </div>
-{% endfor %}
+        <div class="mb-4">
 
-{# =========================
-   FORMULAIRE
-   ========================= #}
+            <a href="{{ path('admin_product_index') }}"
+               class="account-back-link">
 
-{{ include('admin/admin_product/_form.html.twig', {
-    button_label: 'Mettre à jour'
-}) }}
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour aux produits
 
-<br>
+            </a>
 
-<a href="{{ path('admin_product_index') }}">
-    ← Retour à la liste
-</a>
+        </div>
 
-<hr>
+        <div>
 
-{# =========================
-   IMAGES PRODUIT
-   ========================= #}
+            <p class="admin-eyebrow">
+                Catalogue
+            </p>
 
-<h2>Images du produit</h2>
+            <h1>
+                Modifier le produit
+            </h1>
 
-{% if product.productImages|length > 0 %}
+            <p>
+                Modifiez les informations et les images de ce produit.
+            </p>
 
-    <div style="display:flex;gap:20px;flex-wrap:wrap;">
-
-        {% for image in product.productImages %}
-
-            <div style="
-                width:220px;
-                border:1px solid #ddd;
-                border-radius:10px;
-                padding:10px;
-            ">
-
-                <img
-                    src="{{ image.url }}"
-                    alt=""
-                    style="
-                        width:100%;
-                        height:180px;
-                        object-fit:cover;
-                        border-radius:8px;
-                    "
-                >
-
-                <div style="margin-top:10px;">
-
-                    {% if image.isMain %}
-
-                        <p style="
-                            color:green;
-                            font-weight:bold;
-                            margin-bottom:10px;
-                        ">
-                            Image principale
-                        </p>
-
-                    {% else %}
-
-                        <form
-                            method="POST"
-                            action="{{ path('admin_product_image_main', {id: image.id}) }}"
-                        >
-
-                            <input
-                                type="hidden"
-                                name="_token"
-                                value="{{ csrf_token('main_image' ~ image.id) }}"
-                            >
-
-                            <button type="submit">
-                                Définir principale
-                            </button>
-
-                        </form>
-
-                    {% endif %}
-
-                    <form
-                        method="POST"
-                        action="{{ path('admin_product_image_delete', {id: image.id}) }}"
-                        onsubmit="return confirm('Supprimer cette image ?');"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="_token"
-                            value="{{ csrf_token('delete_image' ~ image.id) }}"
-                        >
-
-                        <button
-                            type="submit"
-                            style="
-                                margin-top:10px;
-                                color:red;
-                            "
-                        >
-                            Supprimer
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        {% endfor %}
+        </div>
 
     </div>
 
-{% else %}
 
-    <p>Aucune image pour ce produit.</p>
+    {# =========================
+       MESSAGES
+       ========================= #}
 
-{% endif %}
+    {% for message in app.flashes('success') %}
 
-<hr>
+        <div style="color:green;margin-bottom:15px;">
+            {{ message }}
+        </div>
 
-{# =========================
-   DELETE PRODUCT
-   ========================= #}
+    {% endfor %}
 
-{{ include('admin/admin_product/_delete_form.html.twig') }}
+
+    {% for message in app.flashes('error') %}
+
+        <div style="color:red;margin-bottom:15px;">
+            {{ message }}
+        </div>
+
+    {% endfor %}
+
+
+    {# =========================
+       FORMULAIRE + IMAGES
+       ========================= #}
+
+    {{ include('admin/admin_product/_edit_form.html.twig', {
+        button_label: 'Mettre à jour'
+    }) }}
+
+
+</div>
 
 {% endblock %}

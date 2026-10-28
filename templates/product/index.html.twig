@@ -34,12 +34,29 @@
         <form id="filterForm"
               class="d-flex flex-wrap gap-3 align-items-center justify-content-center">
 
-            {# SEARCH #}
-            <div class="lux-input">
-                <input type="text"
-                       id="search"
-                       placeholder="Rechercher un produit">
+            
+            {# SEARCH AVEC SUGGESTIONS #}
+            <div class="lux-search-wrap" id="searchWrap">
+                <div class="lux-input">
+                    <input
+                        type="text"
+                        id="search"
+                        placeholder="Rechercher un produit..."
+                        autocomplete="off"
+                        aria-label="Rechercher un produit"
+                        aria-controls="searchSuggestions"
+                        aria-expanded="false"
+                    >
+                </div>
+
+                <div
+                    id="searchSuggestions"
+                    class="search-suggestions"
+                    role="listbox"
+                    hidden
+                ></div>
             </div>
+
 
             {# CATEGORY #}
             <div class="lux-select" id="categorySelect">
@@ -119,10 +136,13 @@
 {# ========================= JS ========================= #}
 <script>
 
+
 let currentPage = 1;
+let searchTimeout = null;
+let activeRequest = null;
 
 /* =========================
-   SCROLL TO TOP (léger)
+   SCROLL
 ========================= */
 function scrollTopPage() {
     window.scrollTo({
@@ -132,162 +152,492 @@ function scrollTopPage() {
 }
 
 /* =========================
-   LOAD PRODUCTS
+   CHARGEMENT DES PRODUITS
 ========================= */
-function loadProducts(page = 1) {
-
+async function loadProducts(page = 1) {
     currentPage = page;
+
+    const grid = document.getElementById('productGrid');
+    const pagination = document.getElementById('pagination');
 
     const category = document.getElementById('category').value;
     const sort = document.getElementById('sort').value;
-    const search = document.getElementById('search').value;
+    const search = document.getElementById('search').value.trim();
 
-    fetch(`/products/ajax?page=${page}&category=${category}&sort=${sort}&search=${search}`)
-        .then(r => r.json())
-        .then(data => {
+    // Annule la requête précédente si elle est toujours en cours.
+    if (activeRequest) {
+        activeRequest.abort();
+    }
 
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
+    activeRequest = new AbortController();
 
-            data.products.forEach(p => {
+    const params = new URLSearchParams({
+        page: String(page),
+        category: category,
+        sort: sort,
+        search: search
+    });
 
-                grid.innerHTML += `
-                    <div class="col-6 col-md-4 col-lg-3">
+    grid.innerHTML = `
+        <div class="col-12 text-center py-5">
+            <p style="color: var(--site-text-soft);">
+                Recherche des produits...
+            </p>
+        </div>
+    `;
 
-                        <div class="product-card h-100 p-3">
+    pagination.innerHTML = '';
 
-                            ${p.image ? `
-                                <img src="${p.image}" class="product-image mb-3">
-                            ` : `
-                                <div class="product-image mb-3 d-flex align-items-center justify-content-center text-muted">
-                                    Pas d'image
-                                </div>
-                            `}
+    try {
+        const response = await fetch(
+            `/products/ajax?${params.toString()}`,
+            {
+                signal: activeRequest.signal,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
 
-                            <h3 class="product-title mb-2">
-                                ${p.name}
-                            </h3>
+        if (!response.ok) {
+            throw new Error('Erreur HTTP ' + response.status);
+        }
 
-                            ${p.price ? `
-                                <p class="product-price mb-3">
-                                    ${p.price} €
-                                </p>
-                            ` : ''}
+        const data = await response.json();
 
-                            <div class="d-flex justify-content-between align-items-center">
+        grid.innerHTML = '';
 
-                                <a href="/product/${p.slug}"
-                                   class="btn-outline-gold btn-sm">
-                                    Voir
-                                </a>
+        // Aucun produit trouvé
+        if (!data.products || data.products.length === 0) {
+            const message = search
+                ? `Aucun produit ne correspond à « ${search} ».`
+                : 'Aucun produit ne correspond à ces filtres.';
 
-                                <button onclick="addToCart(${p.id})"
-                                        class="btn-primary-custom btn-sm">
-                                    Ajouter
-                                </button>
+            const empty = document.createElement('div');
+            empty.className = 'col-12 text-center py-5';
 
-                            </div>
+            const title = document.createElement('h3');
+            title.className = 'product-title mb-3';
+            title.textContent = 'Aucun résultat';
 
-                        </div>
+            const text = document.createElement('p');
+            text.style.color = 'var(--site-text-soft)';
+            text.textContent = message;
 
-                    </div>
-                `;
+            const hint = document.createElement('p');
+            hint.style.color = 'var(--site-text-soft)';
+            hint.textContent =
+                'Essayez un autre mot-clé ou réinitialisez les filtres.';
+
+            empty.append(title, text, hint);
+            grid.appendChild(empty);
+
+            return;
+        }
+
+        // Création des cartes produits
+        data.products.forEach(product => {
+            const column = document.createElement('div');
+            column.className = 'col-12 col-md-4 col-lg-3';
+
+            const card = document.createElement('div');
+            card.className = 'product-card h-100 p-3';
+
+            if (product.image) {
+                const image = document.createElement('img');
+                image.src = product.image;
+                image.alt = product.name || 'Produit';
+                image.className = 'product-image mb-3';
+                image.loading = 'lazy';
+                card.appendChild(image);
+            } else {
+                const noImage = document.createElement('div');
+                noImage.className =
+                    'product-image mb-3 d-flex align-items-center justify-content-center text-muted';
+                noImage.textContent = 'Pas d’image';
+                card.appendChild(noImage);
+            }
+
+            const title = document.createElement('h3');
+            title.className = 'product-title mb-2';
+            title.style.height = '4.2em';
+            title.style.overflow = 'hidden';
+            title.style.display = '-webkit-box';
+            title.style.webkitBoxOrient = 'vertical';
+            title.style.webkitLineClamp = '3';
+            title.textContent = product.name || 'Produit';
+            card.appendChild(title);
+
+            if (
+                product.price !== null &&
+                product.price !== undefined &&
+                product.price !== ''
+            ) {
+                const price = document.createElement('p');
+                price.className = 'product-price mb-3';
+                price.style.height = '2.5rem';
+                price.style.display = 'flex';
+                price.style.alignItems = 'center';
+                price.style.marginTop = '0';
+
+                if (
+                    product.price !== null &&
+                    product.price !== undefined &&
+                    product.price !== ''
+                ) {
+                    const numericPrice = Number(product.price);
+
+                    price.textContent = Number.isFinite(numericPrice)
+                        ? numericPrice.toLocaleString('fr-FR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }) + ' €'
+                        : product.price + ' €';
+                } else {
+                    price.textContent = '';
+                }
+
+                card.appendChild(price);
+            }
+
+            const actions = document.createElement('div');
+            actions.className =
+                'd-flex justify-content-between align-items-center gap-2';
+
+            const viewLink = document.createElement('a');
+            viewLink.href = '/product/' + encodeURIComponent(product.slug);
+            viewLink.className = 'btn-outline-gold btn-sm';
+            viewLink.textContent = 'Voir';
+
+            const addButton = document.createElement('button');
+            addButton.type = 'button';
+            addButton.className = 'btn-primary-custom btn-sm';
+            addButton.textContent = 'Ajouter';
+            addButton.addEventListener('click', () => {
+                addToCart(product.id);
             });
 
-            renderPagination(data.currentPage, data.totalPages);
-
-            if (page > 1) {
-                scrollTopPage();
-            }
+            actions.append(viewLink, addButton);
+            card.appendChild(actions);
+            column.appendChild(card);
+            grid.appendChild(column);
         });
+
+        renderPagination(
+            data.currentPage,
+            data.totalPages
+        );
+
+        if (page > 1) {
+            scrollTopPage();
+        }
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            return;
+        }
+
+        console.error('Erreur de chargement des produits :', error);
+
+        grid.innerHTML = '';
+
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'col-12 text-center py-5';
+
+        const errorMessage = document.createElement('p');
+        errorMessage.style.color = 'var(--site-danger)';
+        errorMessage.textContent =
+            'Impossible de charger les produits. Veuillez réessayer.';
+
+        const retryButton = document.createElement('button');
+        retryButton.type = 'button';
+        retryButton.className = 'btn-outline-gold';
+        retryButton.textContent = 'Réessayer';
+        retryButton.addEventListener('click', () => loadProducts(currentPage));
+
+        errorContainer.append(errorMessage, retryButton);
+        grid.appendChild(errorContainer);
+    } finally {
+        activeRequest = null;
+    }
 }
+
+
+/* =========================
+   SUGGESTIONS DE RECHERCHE
+========================= */
+
+const searchInput = document.getElementById('search');
+const searchWrap = document.getElementById('searchWrap');
+const suggestionsBox = document.getElementById('searchSuggestions');
+
+let suggestionTimeout = null;
+let suggestionRequest = null;
+
+function closeSuggestions() {
+    suggestionsBox.hidden = true;
+    suggestionsBox.innerHTML = '';
+    searchInput.setAttribute('aria-expanded', 'false');
+}
+
+function formatSuggestionPrice(price) {
+    if (price === null || price === undefined || price === '') {
+        return '';
+    }
+
+    const number = Number(price);
+
+    if (!Number.isFinite(number)) {
+        return `${price} €`;
+    }
+
+    return number.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + ' €';
+}
+
+function showSuggestionMessage(message) {
+    suggestionsBox.innerHTML = '';
+
+    const element = document.createElement('div');
+    element.className = 'search-suggestion-message';
+    element.textContent = message;
+
+    suggestionsBox.appendChild(element);
+    suggestionsBox.hidden = false;
+    searchInput.setAttribute('aria-expanded', 'true');
+}
+
+async function loadSuggestions() {
+    const search = searchInput.value.trim();
+
+    if (suggestionRequest) {
+        suggestionRequest.abort();
+        suggestionRequest = null;
+    }
+
+    // Évite d'afficher des suggestions pour une saisie trop courte.
+    if (search.length < 2) {
+        closeSuggestions();
+        return;
+    }
+
+    const params = new URLSearchParams({
+        page: '1',
+        category: document.getElementById('category').value,
+        sort: document.getElementById('sort').value,
+        search: search
+    });
+
+    const controller = new AbortController();
+    suggestionRequest = controller;
+
+    showSuggestionMessage('Recherche en cours...');
+
+    try {
+        const response = await fetch(
+            `/products/ajax?${params.toString()}`,
+            {
+                signal: controller.signal,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('Erreur lors de la recherche.');
+        }
+
+        const data = await response.json();
+
+        // Ignore les résultats si le texte a changé entre-temps.
+        if (searchInput.value.trim() !== search) {
+            return;
+        }
+
+        suggestionsBox.innerHTML = '';
+
+        const products = (data.products || []).slice(0, 5);
+
+        if (products.length === 0) {
+            showSuggestionMessage('Aucun produit trouvé.');
+            return;
+        }
+
+        products.forEach(product => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'search-suggestion-item';
+            item.setAttribute('role', 'option');
+
+            if (product.image) {
+                const image = document.createElement('img');
+                image.className = 'search-suggestion-image';
+                image.src = product.image;
+                image.alt = '';
+                image.loading = 'lazy';
+                item.appendChild(image);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'search-suggestion-image';
+                placeholder.setAttribute('aria-hidden', 'true');
+                item.appendChild(placeholder);
+            }
+
+            const info = document.createElement('span');
+            info.className = 'search-suggestion-info';
+
+            const name = document.createElement('span');
+            name.className = 'search-suggestion-name';
+            name.textContent = product.name || 'Produit';
+
+            info.appendChild(name);
+
+            const price = formatSuggestionPrice(product.price);
+
+            if (price) {
+                const priceElement = document.createElement('span');
+                priceElement.className = 'search-suggestion-price';
+                priceElement.textContent = price;
+                info.appendChild(priceElement);
+            }
+
+            item.appendChild(info);
+
+            item.addEventListener('click', () => {
+                closeSuggestions();
+                window.location.href =
+                    '/product/' + encodeURIComponent(product.slug);
+            });
+
+            suggestionsBox.appendChild(item);
+        });
+
+        suggestionsBox.hidden = false;
+        searchInput.setAttribute('aria-expanded', 'true');
+
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            return;
+        }
+
+        console.error('Erreur des suggestions :', error);
+        showSuggestionMessage('Suggestions momentanément indisponibles.');
+    } finally {
+        if (suggestionRequest === controller) {
+            suggestionRequest = null;
+        }
+    }
+}
+
+// Affiche les suggestions pendant la saisie.
+searchInput.addEventListener('input', () => {
+    clearTimeout(suggestionTimeout);
+
+    suggestionTimeout = setTimeout(loadSuggestions, 250);
+});
+
+// Ferme les suggestions avec la touche Échap.
+searchInput.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+        closeSuggestions();
+        searchInput.blur();
+    }
+});
+
+// Ferme la liste si le visiteur clique ailleurs.
+document.addEventListener('click', event => {
+    if (!searchWrap.contains(event.target)) {
+        closeSuggestions();
+    }
+});
+
 
 /* =========================
    PAGINATION
 ========================= */
 function renderPagination(current, total) {
+    const container = document.getElementById('pagination');
+    container.innerHTML = '';
 
-    let html = '';
+    if (!total || total <= 1) {
+        return;
+    }
 
     const start = Math.max(1, current - 2);
     const end = Math.min(total, current + 2);
 
-    // =========================
-    // PREMIÈRE PAGE
-    // =========================
+    function createPageButton(label, page, ariaLabel) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn-outline-gold mx-1';
+        button.textContent = label;
+        button.setAttribute('aria-label', ariaLabel);
+        button.addEventListener('click', () => loadProducts(page));
+
+        return button;
+    }
+
     if (current > 1) {
-
-        html += `
-            <button class="btn-outline-gold mx-1"
-                    onclick="loadProducts(1)">
-                «
-            </button>
-        `;
-
-        html += `
-            <button class="btn-outline-gold mx-1"
-                    onclick="loadProducts(${current - 1})">
-                ←
-            </button>
-        `;
+        container.append(
+            createPageButton('«', 1, 'Première page'),
+            createPageButton('←', current - 1, 'Page précédente')
+        );
     }
 
-    // =========================
-    // PAGES
-    // =========================
     for (let i = start; i <= end; i++) {
-
-        html += i === current
-            ? `
-                <span class="mx-2"
-                      style="color:var(--site-accent); font-weight:600;">
-                    ${i}
-                </span>
-              `
-            : `
-                <button class="btn-outline-gold mx-1"
-                        onclick="loadProducts(${i})">
-                    ${i}
-                </button>
-              `;
+        if (i === current) {
+            const active = document.createElement('span');
+            active.className = 'mx-2';
+            active.style.color = 'var(--site-accent)';
+            active.style.fontWeight = '600';
+            active.textContent = String(i);
+            active.setAttribute('aria-current', 'page');
+            container.appendChild(active);
+        } else {
+            container.appendChild(
+                createPageButton(String(i), i, `Page ${i}`)
+            );
+        }
     }
 
-    // =========================
-    // DERNIÈRE PAGE
-    // =========================
     if (current < total) {
-
-        html += `
-            <button class="btn-outline-gold mx-1"
-                    onclick="loadProducts(${current + 1})">
-                →
-            </button>
-        `;
-
-        html += `
-            <button class="btn-outline-gold mx-1"
-                    onclick="loadProducts(${total})">
-                »
-            </button>
-        `;
+        container.append(
+            createPageButton('→', current + 1, 'Page suivante'),
+            createPageButton('»', total, 'Dernière page')
+        );
     }
 
-    // =========================
-    // INFOS PAGINATION
-    // =========================
-    html += `
-        <div class="mt-3 small text-muted">
-            Page ${current} sur ${total}
-        </div>
-    `;
-
-    document.getElementById('pagination').innerHTML = html;
+    const info = document.createElement('div');
+    info.className = 'mt-3 small text-muted';
+    info.textContent = `Page ${current} sur ${total}`;
+    container.appendChild(info);
 }
 
 /* =========================
-   RESET
+   RECHERCHE AUTOMATIQUE
+========================= */
+document.getElementById('search').addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+
+    searchTimeout = setTimeout(() => {
+        loadProducts(1);
+    }, 350);
+});
+
+/* Empêche le formulaire de recharger toute la page */
+document.getElementById('filterForm').addEventListener('submit', event => {
+    event.preventDefault();
+    clearTimeout(searchTimeout);
+    loadProducts(1);
+});
+
+/* =========================
+   RÉINITIALISATION
 ========================= */
 document.getElementById('resetFilters').addEventListener('click', () => {
+    clearTimeout(searchTimeout);
 
     document.getElementById('category').value = '';
     document.getElementById('sort').value = 'newest';
@@ -307,37 +657,31 @@ document.getElementById('resetFilters').addEventListener('click', () => {
 });
 
 /* =========================
-   CATEGORY SELECT
+   SÉLECTION DES CATÉGORIES
 ========================= */
 const categorySelect = document.getElementById('categorySelect');
-const categoryDisplay = categorySelect.querySelector('.lux-select-display');
-const categoryOptions = categorySelect.querySelectorAll('.lux-option');
+const categoryDisplay =
+    categorySelect.querySelector('.lux-select-display');
+const categoryOptions =
+    categorySelect.querySelectorAll('.lux-option');
 const categoryHidden = document.getElementById('category');
 
 categoryDisplay.addEventListener('click', () => {
     categorySelect.classList.toggle('open');
 });
 
-categoryOptions.forEach(opt => {
-    opt.addEventListener('click', () => {
-
-        categoryHidden.value = opt.dataset.value;
-        categoryDisplay.textContent = opt.textContent;
+categoryOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        categoryHidden.value = option.dataset.value;
+        categoryDisplay.textContent = option.textContent.trim();
 
         categorySelect.classList.remove('open');
-
         loadProducts(1);
     });
 });
 
-document.addEventListener('click', (e) => {
-    if (!categorySelect.contains(e.target)) {
-        categorySelect.classList.remove('open');
-    }
-});
-
 /* =========================
-   SORT SELECT
+   SÉLECTION DU TRI
 ========================= */
 const sortSelect = document.getElementById('sortSelect');
 const sortDisplay = sortSelect.querySelector('.lux-select-display');
@@ -348,40 +692,42 @@ sortDisplay.addEventListener('click', () => {
     sortSelect.classList.toggle('open');
 });
 
-sortOptions.forEach(opt => {
-    opt.addEventListener('click', () => {
-
-        sortHidden.value = opt.dataset.value;
-        sortDisplay.textContent = opt.textContent;
+sortOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        sortHidden.value = option.dataset.value;
+        sortDisplay.textContent = option.textContent.trim();
 
         sortSelect.classList.remove('open');
-
         loadProducts(1);
     });
 });
 
-document.addEventListener('click', (e) => {
-    if (!sortSelect.contains(e.target)) {
+/* Fermer les menus si l'on clique ailleurs */
+document.addEventListener('click', event => {
+    if (!categorySelect.contains(event.target)) {
+        categorySelect.classList.remove('open');
+    }
+
+    if (!sortSelect.contains(event.target)) {
         sortSelect.classList.remove('open');
     }
 });
 
 /* =========================
-   INIT + URL CATEGORY SUPPORT
+   INITIALISATION
 ========================= */
 window.addEventListener('DOMContentLoaded', () => {
-
     const params = new URLSearchParams(window.location.search);
     const category = params.get('category');
 
     if (category) {
-
-        document.getElementById('category').value = category;
-
-        const option = document.querySelector(`.lux-option[data-value="${category}"]`);
+        const option = Array.from(categoryOptions).find(
+            item => item.dataset.value === category
+        );
 
         if (option) {
-            categoryDisplay.textContent = option.textContent;
+            categoryHidden.value = category;
+            categoryDisplay.textContent = option.textContent.trim();
         }
     }
 
@@ -389,17 +735,29 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 /* =========================
-   ADD TO CART
+   AJOUT AU PANIER
 ========================= */
 async function addToCart(productId) {
+    try {
+        const response = await fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
 
-    await fetch(`/cart/add/${productId}`, {
-        method: 'POST'
-    });
+        if (!response.ok) {
+            throw new Error('Impossible d’ajouter ce produit au panier.');
+        }
 
-    updateCartCounter();
-    showLuxuryToast('Produit ajouté au panier');
+        updateCartCounter();
+        showLuxuryToast('Produit ajouté au panier');
+    } catch (error) {
+        console.error('Erreur panier :', error);
+        showLuxuryToast('Impossible d’ajouter le produit au panier');
+    }
 }
+
 
 </script>
 

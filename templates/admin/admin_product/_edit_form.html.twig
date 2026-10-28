@@ -1,0 +1,251 @@
+{{ form_start(form) }}
+
+<div class="admin-product-form">
+
+    {# =========================
+       INFORMATIONS
+       ========================= #}
+
+    <div class="admin-product-form-card">
+
+        <div class="admin-product-form-header">
+
+            <p class="admin-eyebrow">
+                Informations
+            </p>
+
+            <h2>
+                Produit
+            </h2>
+
+            <p>
+                Modifiez les informations principales du produit.
+            </p>
+
+        </div>
+
+        <div class="admin-product-form-grid">
+
+            <div class="admin-form-field admin-form-field-full">
+                {{ form_row(form.name) }}
+            </div>
+
+            <div class="admin-form-field">
+                {{ form_row(form.supplierReference) }}
+            </div>
+
+            <div class="admin-form-field">
+                {{ form_row(form.stock) }}
+            </div>
+
+            <div class="admin-form-field">
+                {{ form_row(form.category) }}
+            </div>
+
+            <div class="admin-form-field">
+                {{ form_row(form.price) }}
+            </div>
+
+            <div class="admin-form-field admin-form-field-full">
+                {{ form_row(form.description) }}
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# =========================
+       IMAGES
+       ========================= #}
+
+    <div class="admin-product-form-card">
+
+        <div class="admin-product-form-header">
+
+            <p class="admin-eyebrow">
+                Images
+            </p>
+
+            <h2>
+                Images du produit
+            </h2>
+
+        </div>
+
+
+        {# =========================
+           GALERIE
+           ========================= #}
+
+        {% if product.productImages|length > 0 %}
+
+            <div class="admin-product-image-gallery">
+
+                {% for image in product.productImages %}
+
+                    <div class="admin-product-image-item">
+
+                        <div class="admin-product-image-preview">
+
+                            <img
+                                src="{{ image.url }}"
+                                alt="{{ product.name }}"
+                            >
+
+                        </div>
+
+
+                        <div class="admin-product-image-actions">
+
+                            {# IMAGE PRINCIPALE #}
+
+                            <div class="admin-product-image-main">
+
+                                <label>
+
+                                    <input
+                                        type="radio"
+                                        name="main_image"
+                                        value="{{ image.id }}"
+                                        {% if image.isMain %}checked{% endif %}
+                                    >
+
+                                    <span>
+                                        Image principale
+                                    </span>
+
+                                </label>
+
+                            </div>
+
+
+                            {# SUPPRESSION #}
+
+                            <button
+                                type="submit"
+                                form="delete-image-{{ image.id }}"
+                                class="btn"
+                            >
+
+                                <i class="bi bi-trash"></i>
+
+                                Supprimer l'image
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="admin-product-empty">
+                <p>
+                    Aucune image pour ce produit.
+                </p>
+            </div>
+
+        {% endif %}
+
+
+        {# =========================
+           AJOUT D'UNE IMAGE
+           ========================= #}
+
+        <div class="admin-product-image-field">
+
+            <h3>
+                Ajouter une image produit
+            </h3>
+
+            {{ form_row(form.imageFile) }}
+
+            <small>
+                Formats acceptés : JPG, PNG ou WebP — 2 Mo maximum.
+            </small>
+
+        </div>
+
+    </div>
+
+
+    {# =========================
+       DISPONIBILITÉ
+       ========================= #}
+
+    <div class="admin-product-form-card">
+
+        <div class="admin-product-form-header">
+
+            <p class="admin-eyebrow">
+                Disponibilité
+            </p>
+
+            <h2>
+                Publication
+            </h2>
+
+            <p>
+                Contrôlez la disponibilité du produit dans la boutique.
+            </p>
+
+        </div>
+
+        <div class="admin-product-active-field">
+            {{ form_row(form.isActive) }}
+        </div>
+
+    </div>
+
+
+    {# =========================
+       ENREGISTREMENT
+       ========================= #}
+
+    <div class="admin-product-form-actions">
+
+        <button
+            type="submit"
+            class="admin-primary-action"
+        >
+
+            <i class="bi bi-check-lg"></i>
+
+            Enregistrer les modifications
+
+        </button>
+
+    </div>
+
+</div>
+
+{{ form_end(form, { render_rest: false }) }}
+
+
+{# =========================
+   FORMULAIRES DE SUPPRESSION
+   ========================= #}
+
+{% for image in product.productImages %}
+
+    <form
+        id="delete-image-{{ image.id }}"
+        method="POST"
+        action="{{ path('admin_product_image_delete', {id: image.id}) }}"
+        onsubmit="return confirm('Supprimer cette image ?');"
+    >
+
+        <input
+            type="hidden"
+            name="_token"
+            value="{{ csrf_token('delete_image' ~ image.id) }}"
+        >
+
+    </form>
+
+{% endfor %}

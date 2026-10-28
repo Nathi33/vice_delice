@@ -97,148 +97,312 @@
         </div>
 
         {# =========================
-           INFORMATIONS COMMANDE
-           ========================= #}
+        INFORMATIONS COMMANDE
+        ========================= #}
 
         <div class="product-card p-4 mt-4">
 
-            <div class="row g-3">
+        <div class="row g-3 align-items-center">
 
-                <div class="col-md-4">
-                    <strong>Total :</strong><br>
+            <div class="col-md-4">
+
+                <span class="admin-order-info-label">
+                    Total
+                </span>
+
+                <strong class="admin-order-info-value">
                     {{ order.total }} €
+                </strong>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <span class="admin-order-info-label">
+                    Statut
+                </span>
+
+                <div>
+
+                    {% if order.status == 'paid' %}
+
+                        <span class="admin-status admin-status-paid">
+                            Payée
+                        </span>
+
+                    {% elseif order.status == 'pending' %}
+
+                        <span class="admin-status admin-status-pending">
+                            En attente
+                        </span>
+
+                    {% elseif order.status == 'shipped' %}
+
+                        <span class="admin-status admin-status-shipped">
+                            Expédiée
+                        </span>
+
+                    {% elseif order.status == 'cancelled' %}
+
+                        <span class="admin-status admin-status-cancelled">
+                            Annulée
+                        </span>
+
+                    {% endif %}
+
                 </div>
 
-                <div class="col-md-4">
-                    <strong>Statut :</strong><br>
-                    {{ order.status }}
-                </div>
+            </div>
 
-                <div class="col-md-4">
-                    <strong>Date :</strong><br>
+
+            <div class="col-md-4">
+
+                <span class="admin-order-info-label">
+                    Date
+                </span>
+
+                <strong class="admin-order-info-value admin-order-info-date">
                     {{ order.createdAt|date('d/m/Y à H:i') }}
+                </strong>
+
+            </div>
+
+        </div>
+
+        </div>
+
+        
+        {# =========================
+        FACTURE
+        ========================= #}
+
+        <div class="admin-order-card mt-4">
+
+            <div class="admin-order-card-header">
+                <div>
+                    <p class="admin-eyebrow">Suivi</p>
+                    <h2>
+                        <i class="bi bi-receipt me-2"></i>
+                        Facture
+                    </h2>
                 </div>
+            </div>
+
+            <div class="p-4">
+
+                {% if order.invoiceNumber %}
+
+                    <p class="mb-3">
+                        <strong>Numéro :</strong>
+                        {{ order.invoiceNumber }}
+                    </p>
+
+                    <p class="mb-3">
+                        <strong>Date d’émission :</strong>
+
+                        {% if order.invoiceIssuedAt %}
+                            {{ order.invoiceIssuedAt|date('d/m/Y à H:i') }}
+                        {% else %}
+                            Non renseignée
+                        {% endif %}
+                    </p>
+
+                    <p class="mb-3">
+                        <strong>E-mail de facture :</strong>
+
+                        {% if order.invoiceEmailSentAt %}
+                            Envoyé le
+                            {{ order.invoiceEmailSentAt|date('d/m/Y à H:i') }}
+                        {% else %}
+                            Aucun envoi enregistré
+                        {% endif %}
+                    </p>
+
+                    {% if invoiceAvailable %}
+                        <a
+                            href="{{ path('admin_orders_invoice_download', {id: order.id}) }}"
+                            class="btn-outline-gold"
+                        >
+                            <i class="bi bi-file-earmark-pdf me-2"></i>
+                            Télécharger la facture PDF
+                        </a>
+                    {% else %}
+                        <p class="mb-0">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Le PDF de cette facture n’est pas encore enregistré
+                            à son emplacement définitif.
+                        </p>
+                    {% endif %}
+
+                {% else %}
+
+                    <p class="mb-0">
+                        Aucune facture enregistrée pour cette commande.
+                    </p>
+
+                {% endif %}
 
             </div>
 
         </div>
 
+
         {# =========================
-           PRODUITS
-           ========================= #}
+        PRODUITS
+        ========================= #}
 
-        <div class="product-card p-4 mt-4">
+        <div class="admin-order-card mt-4">
 
-            <h2 class="h5 mb-4">
-                <i class="bi bi-bag me-2"></i>
-                Produits commandés
-            </h2>
+        <div class="admin-order-card-header">
 
-            <div class="table-responsive">
+            <div>
+                <p class="admin-eyebrow">
+                    Détail
+                </p>
 
-                <table class="table align-middle">
+                <h2>
+                    <i class="bi bi-bag me-2"></i>
+                    Produits commandés
+                </h2>
+            </div>
 
-                    <thead>
+        </div>
+
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table admin-order-products-table">
+
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Prix unitaire</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in order.items %}
+
                         <tr>
-                            <th>Produit</th>
-                            <th>Quantité</th>
-                            <th>Prix unitaire</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-
-                        {% for item in order.items %}
-
-                            <tr>
-                                <td>
+                            <td>
+                                <span class="admin-product-name">
                                     {{ item.productName }}
-                                </td>
+                                </span>
+                            </td>
 
-                                <td>
+                            <td>
+                                <span class="admin-product-quantity">
                                     {{ item.quantity }}
-                                </td>
+                                </span>
+                            </td>
 
-                                <td>
+                            <td>
+                                <strong>
                                     {{ item.price }} €
-                                </td>
-                            </tr>
+                                </strong>
+                            </td>
 
-                        {% endfor %}
+                        </tr>
 
-                    </tbody>
+                    {% endfor %}
 
-                </table>
+                </tbody>
 
-            </div>
+            </table>
 
         </div>
 
-        {# =========================
-           CHANGEMENT DE STATUT
-           ========================= #}
+        </div>
+        
+    {# =========================
+    CHANGEMENT DE STATUT
+    ========================= #}
 
-        <div class="product-card p-4 mt-4">
+    <div class="admin-order-card mt-4">
 
-            <h2 class="h5 mb-4">
-                <i class="bi bi-arrow-repeat me-2"></i>
-                Changer le statut
-            </h2>
+        <div class="admin-order-card-header">
+            <div>
+                <p class="admin-eyebrow">Gestion</p>
+                <h2>
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Suivi de la commande
+                </h2>
+            </div>
+        </div>
 
-            <form method="POST"
-                  action="{{ path('admin_orders_status', {id: order.id}) }}">
+        <div class="p-4">
 
-                <div class="row align-items-end g-3">
+            {% if order.status == 'paid' %}
 
-                    <div class="col-md-6">
+                <p class="mb-0">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Cette commande est payée. Le paiement est confirmé par Stripe.
+                    Son statut de paiement ne peut pas être modifié ici.
+                </p>
 
-                        <label for="status" class="form-label">
-                            Statut
-                        </label>
+            {% elseif order.status == 'refunded' %}
 
-                        <select name="status"
-                                id="status"
-                                class="form-select">
+                <p class="mb-0">
+                    Cette commande est remboursée. Toute modification nécessite
+                    un traitement spécifique.
+                </p>
 
-                            <option value="pending"
-                                {% if order.status == 'pending' %}selected{% endif %}>
-                                En attente
-                            </option>
+            {% else %}
 
-                            <option value="paid"
-                                {% if order.status == 'paid' %}selected{% endif %}>
-                                Payée
-                            </option>
+                <form method="POST"
+                    action="{{ path('admin_orders_status', {id: order.id}) }}">
 
-                            <option value="shipped"
-                                {% if order.status == 'shipped' %}selected{% endif %}>
-                                Expédiée
-                            </option>
+                    <input type="hidden" name="_token" value="{{ csrf_token('order_status_' ~ order.id) }}">
 
-                            <option value="cancelled"
-                                {% if order.status == 'cancelled' %}selected{% endif %}>
-                                Annulée
-                            </option>
+                    <div class="admin-status-form">
 
-                        </select>
+                        <div class="admin-status-field">
+                            <label for="status">Statut</label>
 
-                    </div>
+                            <select name="status"
+                                    id="status"
+                                    class="admin-status-select"
+                                    required>
 
-                    <div class="col-md-6">
+                                <option value="pending"
+                                    {% if order.status == 'pending' %}selected{% endif %}>
+                                    En attente
+                                </option>
 
-                        <button type="submit" class="btn-outline-gold">
+                                <option value="shipped"
+                                    {% if order.status == 'shipped' %}selected{% endif %}>
+                                    Expédiée
+                                </option>
+
+                                <option value="cancelled"
+                                    {% if order.status == 'cancelled' %}selected{% endif %}>
+                                    Annulée
+                                </option>
+
+                            </select>
+                        </div>
+
+                        <button type="submit"
+                                class="btn-outline-gold admin-status-button">
                             Mettre à jour
+                            <i class="bi bi-arrow-right"></i>
                         </button>
 
                     </div>
 
-                </div>
+                </form>
 
-            </form>
+                
+            {% endif %}
 
         </div>
 
     </div>
+
 
 </section>
 

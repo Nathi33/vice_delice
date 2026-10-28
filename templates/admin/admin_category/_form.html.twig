@@ -1,4 +1,24 @@
-{{ form_start(form) }}
+{{ form_start(form, {
+    attr: {
+        class: 'admin-category-form'
+    }
+}) }}
+
+<div class="admin-category-form-content">
     {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+</div>
+
+<div class="admin-category-form-actions">
+    <a href="{{ path('admin_category_index') }}"
+       class="admin-category-cancel-action">
+        <i class="bi bi-x-lg"></i>
+        Annuler
+    </a>
+
+    <button type="submit" class="admin-category-submit-action">
+        <i class="bi bi-check-lg"></i>
+        {{ button_label|default('Créer la catégorie') }}
+    </button>
+</div>
+
 {{ form_end(form) }}

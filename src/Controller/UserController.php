@@ -93,10 +93,20 @@ class UserController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $form = $this->createForm(EditProfileFormType::class, [
-            'email' => $user->getEmail(),
-            'phone' => $user->getPhone(),
-        ]);
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
+        $form = $this->createForm(
+            EditProfileFormType::class,
+            [
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'email' => $user->getEmail(),
+                'phone' => $user->getPhone(),
+            ],
+            [
+                'is_admin' => $isAdmin,
+            ]
+        );
 
         $form->handleRequest($request);
 
@@ -108,6 +118,11 @@ class UserController extends AbstractController
             $phone = $form->get('phone')->getData();
 
             $user->setPhone($phone);
+
+            if ($isAdmin) {
+                $user->setFirstName($form->get('firstName')->getData());
+                $user->setLastName($form->get('lastName')->getData());
+            }
 
             // L'adresse e-mail n'a pas changé
             if (mb_strtolower($newEmail) === mb_strtolower($currentEmail)) {

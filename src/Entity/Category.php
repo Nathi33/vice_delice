@@ -18,7 +18,7 @@ class Category
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100, nullable: true, unique: true)]
+    #[ORM\Column(length: 255, nullable: true, unique: true)]
     private ?string $externalReference = null;
 
     #[ORM\Column(length: 150)]
